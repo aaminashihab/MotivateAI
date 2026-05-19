@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { GoogleGenerativeAI, FunctionDeclaration, Type, Tool } from '@google/generative-ai';
+import { GoogleGenerativeAI, FunctionDeclaration, SchemaType, Tool } from '@google/generative-ai';
 import clientPromise from '@/lib/mongodb';
 import { getMcpClient } from '@/lib/agent/mcpClient';
 
@@ -7,15 +7,15 @@ import { getMcpClient } from '@/lib/agent/mcpClient';
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || 'dummy_key');
 
 // Helper to convert MCP JSON Schema to Gemini Schema Type
-function mcpTypeToGeminiType(type: string): Type {
+function mcpTypeToGeminiType(type: string): SchemaType {
   switch (type) {
-    case 'string': return Type.STRING;
-    case 'number': return Type.NUMBER;
-    case 'integer': return Type.INTEGER;
-    case 'boolean': return Type.BOOLEAN;
-    case 'array': return Type.ARRAY;
-    case 'object': return Type.OBJECT;
-    default: return Type.STRING;
+    case 'string': return SchemaType.STRING;
+    case 'number': return SchemaType.NUMBER;
+    case 'integer': return SchemaType.INTEGER;
+    case 'boolean': return SchemaType.BOOLEAN;
+    case 'array': return SchemaType.ARRAY;
+    case 'object': return SchemaType.OBJECT;
+    default: return SchemaType.STRING;
   }
 }
 
@@ -35,7 +35,7 @@ function mcpToolToGeminiTool(mcpTool: any): FunctionDeclaration {
     name: mcpTool.name.replace(/-/g, '_'), // Gemini names must match ^[a-zA-Z0-9_]+$
     description: mcpTool.description,
     parameters: {
-      type: Type.OBJECT,
+      type: SchemaType.OBJECT,
       properties,
       required: mcpTool.inputSchema?.required || [],
     },
