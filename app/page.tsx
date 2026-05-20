@@ -27,6 +27,7 @@ export default function Home() {
   const [videoData, setVideoData] = useState<{ videoId: string, title: string } | null>(null);
   const [streak, setStreak] = useState(0);
   const [userId, setUserId] = useState<string>('');
+  const [sessionId, setSessionId] = useState<string>('');
 
   // Load session and streak on mount
   useEffect(() => {
@@ -47,6 +48,7 @@ export default function Home() {
             setTasks(data.tasks);
             setActiveIndex(data.activeIndex || 0);
             setVideoData(data.videoData || null);
+            if (data.sessionId) setSessionId(data.sessionId);
           }
         } catch (e) {}
       }
@@ -73,7 +75,7 @@ export default function Home() {
     if (typeof window !== 'undefined') {
       if (tasks.length > 0) {
         localStorage.setItem('motivateai_session', JSON.stringify({
-          goal, tasks, activeIndex, videoData
+          goal, tasks, activeIndex, videoData, sessionId
         }));
       } else {
         localStorage.removeItem('motivateai_session');
@@ -87,6 +89,7 @@ export default function Home() {
     setTasks([]);
     setVideoData(null);
     setActiveIndex(0);
+    setSessionId('');
     if (typeof window !== 'undefined') localStorage.removeItem('motivateai_timer_state');
 
     try {
@@ -130,6 +133,7 @@ export default function Home() {
     setTasks(newTasks);
     setGoal(plan.goal);
     setActiveIndex(0);
+    if (plan.sessionId) setSessionId(plan.sessionId);
     if (typeof window !== 'undefined') localStorage.removeItem('motivateai_timer_state');
     
     // Fetch video
@@ -144,9 +148,29 @@ export default function Home() {
     }
   };
 
-  const handleTaskComplete = () => {
+  const handleTaskComplete = async () => {
+    const newActiveIndex = activeIndex + 1;
+    
+    // Send update to database
+    if (userId && sessionId) {
+      try {
+        await fetch('/api/session/update', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId,
+            sessionId,
+            tasksCompleted: newActiveIndex,
+            taskCount: tasks.length
+          })
+        });
+      } catch (err) {
+        console.error('Failed to update session:', err);
+      }
+    }
+
     if (activeIndex < tasks.length - 1) {
-      setActiveIndex(prev => prev + 1);
+      setActiveIndex(newActiveIndex);
     } else {
       // Session Complete!
       if (typeof window !== 'undefined') {

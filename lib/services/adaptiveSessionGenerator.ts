@@ -14,6 +14,7 @@ export interface GeneratedTask {
 }
 
 export interface AdaptiveSessionPlan {
+  sessionId?: string;
   goal: string;
   estimatedTotalTime: number;
   tasks: GeneratedTask[];

@@ -39,11 +39,14 @@ export async function POST(request: NextRequest) {
       userSessions as any
     );
 
+    const generatedSessionId = `session_${Date.now()}`;
+    sessionPlan.sessionId = generatedSessionId;
+
     if (sessionCollection) {
       try {
         await sessionCollection.insertOne({
           userId,
-          sessionId: `session_${Date.now()}`,
+          sessionId: generatedSessionId,
           goal,
           startedAt: new Date(),
           tasks: sessionPlan.tasks.map((t) => ({
