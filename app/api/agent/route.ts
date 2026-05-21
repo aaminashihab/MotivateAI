@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI, FunctionDeclaration, SchemaType, Tool } from '@google/generative-ai';
 import clientPromise from '@/lib/mongodb';
-import { getMcpClient } from '@/lib/agent/mcpClient';
+import { getMcpClients } from '@/lib/agent/mcpClient';
 
 // Initialize Gemini API
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || 'dummy_key');
@@ -55,17 +55,30 @@ export async function POST(req: Request) {
       return getFallbackData(goal);
     }
 
-    let mcpClient;
-    let mcpTools: any[] = [];
+    let mcpClients: Record<string, any> = {};
+    let allMcpTools: any[] = [];
+    let toolRegistry: Record<string, string> = {}; // tool_name -> client_id
     let geminiTools: Tool[] = [];
     
     // Attempt to connect to MCP and fetch tools
     try {
-      mcpClient = await getMcpClient();
-      const toolsResponse = await mcpClient.listTools();
-      mcpTools = toolsResponse.tools;
+      mcpClients = await getMcpClients();
       
-      const functionDeclarations = mcpTools.map(mcpToolToGeminiTool);
+      for (const [clientId, client] of Object.entries(mcpClients)) {
+        try {
+          const toolsResponse = await client.listTools();
+          const tools = toolsResponse.tools;
+          allMcpTools = [...allMcpTools, ...tools];
+          
+          tools.forEach((t: any) => {
+             toolRegistry[t.name.replace(/-/g, '_')] = clientId;
+          });
+        } catch (e) {
+          console.error(`Failed to list tools for ${clientId}:`, e);
+        }
+      }
+      
+      const functionDeclarations = allMcpTools.map(mcpToolToGeminiTool);
       if (functionDeclarations.length > 0) {
         geminiTools = [{ functionDeclarations }];
       }
@@ -81,6 +94,8 @@ export async function POST(req: Request) {
     const systemInstruction = `You are MotivateAI, an autonomous agent helping someone build consistency.
 The user wants to achieve this goal: "${goal}".
 You have access to GitHub via MCP. If the goal is coding-related, USE YOUR TOOLS to search GitHub repositories or read files to find REAL project ideas, tutorials, or code to base your plan on!
+
+You ALSO have access to MongoDB via MCP. You can query the 'motivateai' database to fetch user session histories, past goals, or performance data to deeply personalize the session plan based on their past behavior.
 
 Break the goal down into an immediate, actionable, step-by-step 1-hour session based on real data if possible.
 Provide realistic time estimates (in minutes) for each micro-task. Keep tasks short (10-30 mins max) to prevent burnout.
@@ -110,12 +125,14 @@ Final output MUST strictly be in this JSON format without markdown blocks:
       console.log(`Agent executing MCP Tool: ${call.name}`);
       
       // Map back from Gemini name (underscores) to MCP name (might have dashes)
-      const mcpTool = mcpTools.find(t => t.name.replace(/-/g, '_') === call.name);
+      const mcpTool = allMcpTools.find(t => t.name.replace(/-/g, '_') === call.name);
+      const targetClientId = toolRegistry[call.name];
+      const targetClient = mcpClients[targetClientId];
       
       let toolResultText = "";
-      if (mcpTool && mcpClient) {
+      if (mcpTool && targetClient) {
         try {
-          const result = await mcpClient.callTool({
+          const result = await targetClient.callTool({
             name: mcpTool.name,
             arguments: call.args as Record<string, unknown>,
           });
@@ -124,7 +141,7 @@ Final output MUST strictly be in this JSON format without markdown blocks:
           toolResultText = `Error calling tool: ${e.message}`;
         }
       } else {
-        toolResultText = "Tool not found or MCP client not connected.";
+        toolResultText = "Tool not found or target MCP client not connected.";
       }
 
       // Send the result back to Gemini

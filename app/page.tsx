@@ -200,22 +200,23 @@ export default function Home() {
   };
 
   return (
-    <div className="container">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
+    <div className="container mx-auto px-4 py-8 max-w-[1536px]">
+      <div className="flex flex-col md:flex-row justify-between items-start flex-wrap gap-4 mb-8">
         <div>
-          <h1>MotivateAI</h1>
-          <p className="subtitle">Your Autonomous Agent for Building Consistency</p>
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-fuchsia-400 mb-2 animate-slide-down">
+            MotivateAI
+          </h1>
+          <p className="text-slate-400 text-lg md:text-xl animate-fade-in opacity-0" style={{ animationDelay: '0.3s', animationFillMode: 'forwards' }}>
+            Your Autonomous Agent for Building Consistency
+          </p>
         </div>
-        <div style={{ display: 'flex', gap: '1rem' }}>
+        <div className="flex gap-4 w-full md:w-auto mt-4 md:mt-0">
           {streak > 0 && (
-            <div className="glass-panel" style={{ padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: 0 }}>
-              <span style={{ fontSize: '1.5rem' }}>🔥</span>
-              <span style={{ fontWeight: 'bold' }}>{streak} Day Streak</span>
+            <div className="glass-panel flex-1 md:flex-none py-2 px-4 flex items-center justify-center gap-2 m-0 min-h-[48px]">
+              <span className="text-2xl">🔥</span>
+              <span className="font-bold">{streak} Day Streak</span>
             </div>
           )}
-          <Link href="/profile" className="glass-panel" style={{ padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', marginTop: 0, textDecoration: 'none', color: 'var(--text-primary)', fontWeight: 'bold' }}>
-            🧠 Profile
-          </Link>
         </div>
       </div>
 
@@ -227,11 +228,11 @@ export default function Home() {
       )}
 
       {tasks.length > 0 && (
-        <div className="dashboard-grid">
-          <div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+          <div className="order-2 md:order-1 lg:order-1">
             <TaskList tasks={tasks} activeIndex={activeIndex} />
           </div>
-          <div>
+          <div className="order-1 md:order-2 lg:order-2">
             {activeIndex < tasks.length ? (
               <BreakManager 
                 initialMinutes={tasks[activeIndex].duration} 
@@ -239,19 +240,24 @@ export default function Home() {
                 onComplete={handleTaskComplete}
               />
             ) : (
-              <div className="glass-panel" style={{ textAlign: 'center' }}>
-                <h2>Session Complete! 🎉</h2>
-                <p>Great job staying consistent today.</p>
-                <button onClick={() => setTasks([])} style={{ marginTop: '1rem' }}>
+              <div className="glass-panel text-center">
+                <h2 className="text-2xl md:text-3xl font-bold mb-4">Session Complete! 🎉</h2>
+                <p className="text-slate-300 mb-6">Great job staying consistent today.</p>
+                <button 
+                  onClick={() => setTasks([])}
+                  className="w-full md:w-auto min-h-[48px] bg-accent hover:bg-accent-hover text-white font-semibold py-3 px-6 rounded-xl transition-all"
+                >
                   Start New Session
                 </button>
               </div>
             )}
-            
-            {videoData && (
-              <VideoEmbed videoId={videoData.videoId} title={videoData.title} />
-            )}
           </div>
+          
+          {videoData && (
+            <div className="order-3 md:order-3 md:col-span-2 lg:col-span-1 lg:order-3">
+              <VideoEmbed videoId={videoData.videoId} title={videoData.title} />
+            </div>
+          )}
         </div>
       )}
     </div>

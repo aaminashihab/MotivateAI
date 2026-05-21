@@ -54,25 +54,30 @@ export default function AdaptiveGoalInput({
   };
 
   return (
-    <div className="glass-panel" style={{ maxWidth: '600px', margin: '0 auto' }}>
-      <h2 style={{ marginBottom: '1rem' }}>What do you want to accomplish today?</h2>
+    <div className="glass-panel mx-auto max-w-2xl w-full">
+      <h2 className="text-2xl md:text-3xl font-bold mb-6">What do you want to accomplish today?</h2>
       <form onSubmit={handleGenerateSession}>
-        <div className="input-group">
+        <div className="flex flex-col md:flex-row gap-4 mb-4">
           <input
+            className="flex-1 bg-black/20 border border-white/10 rounded-xl px-6 py-4 text-white text-lg focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition-all min-h-[48px]"
             type="text"
             placeholder="e.g., I want to learn Python basics"
             value={goal}
             onChange={(e) => setGoal(e.target.value)}
             disabled={loading || isLoading}
           />
-          <button type="submit" disabled={loading || isLoading || !goal}>
+          <button 
+            type="submit" 
+            disabled={loading || isLoading || !goal}
+            className="min-h-[48px] px-8 py-4 bg-accent hover:bg-accent-hover disabled:opacity-50 disabled:hover:bg-accent text-white font-bold rounded-xl transition-all"
+          >
             {(loading || isLoading) ? <span className="loader"></span> : 'Start'}
           </button>
         </div>
 
-        {error && <p style={{ color: 'var(--success)', marginTop: '1rem' }}>{error}</p>}
+        {error && <p className="text-red-400 mt-4">{error}</p>}
 
-        <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '1rem' }}>
+        <p className="text-slate-400 text-sm mt-4">
           💡 MotivateAI is learning your study style and will personalize
           future sessions for maximum completion!
         </p>

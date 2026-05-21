@@ -90,15 +90,23 @@ export default function BreakManager({
 
   if (isBreakMode) {
     return (
-      <div className="glass-panel" style={{ textAlign: 'center', borderColor: 'var(--success)' }}>
-        <h2>Break Time (5 Min)</h2>
-        <p style={{ margin: '1rem 0', color: 'var(--success)' }}>{ACTIVITIES[activityIndex]}</p>
-        <div className="timer-display" style={{ background: 'linear-gradient(135deg, #10b981, #fff)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+      <div className="glass-panel text-center border-success/50">
+        <h2 className="text-2xl md:text-3xl font-bold mb-2">Break Time (5 Min)</h2>
+        <p className="text-success mb-6 px-4">{ACTIVITIES[activityIndex]}</p>
+        <div className="text-6xl md:text-7xl lg:text-8xl font-extrabold my-8 tabular-nums bg-clip-text text-transparent bg-gradient-to-br from-emerald-400 to-white">
           {formatTime(timeLeft)}
         </div>
-        <div className="controls">
-          <button onClick={toggleTimer}>{isActive ? 'Pause' : 'Resume'}</button>
-          <button onClick={handleSkipBreak} style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid var(--text-secondary)' }}>
+        <div className="flex flex-col md:flex-row justify-center gap-4">
+          <button 
+            onClick={toggleTimer}
+            className="min-h-[48px] px-8 py-3 rounded-xl font-semibold bg-accent hover:bg-accent-hover text-white transition-all w-full md:w-auto"
+          >
+            {isActive ? 'Pause' : 'Resume'}
+          </button>
+          <button 
+            onClick={handleSkipBreak} 
+            className="min-h-[48px] px-8 py-3 rounded-xl font-semibold bg-white/5 border border-slate-500 hover:bg-white/10 text-white transition-all w-full md:w-auto"
+          >
             Skip Break
           </button>
         </div>
@@ -107,16 +115,21 @@ export default function BreakManager({
   }
 
   return (
-    <div className="glass-panel" style={{ textAlign: 'center' }}>
-      <h2>Current Task Timer</h2>
-      <div className="timer-display">{formatTime(timeLeft)}</div>
-      <div className="controls">
-        <button onClick={toggleTimer}>
+    <div className="glass-panel text-center">
+      <h2 className="text-2xl md:text-3xl font-bold mb-2">Current Task Timer</h2>
+      <div className="text-6xl md:text-7xl lg:text-8xl font-extrabold my-8 tabular-nums bg-clip-text text-transparent bg-gradient-to-br from-white to-slate-400">
+        {formatTime(timeLeft)}
+      </div>
+      <div className="flex flex-col md:flex-row justify-center gap-4">
+        <button 
+          onClick={toggleTimer}
+          className="min-h-[48px] px-8 py-3 rounded-xl font-semibold bg-accent hover:bg-accent-hover text-white transition-all w-full md:w-auto"
+        >
           {isActive ? 'Pause' : 'Start'}
         </button>
         <button 
           onClick={handleMarkDone} 
-          style={{ background: 'var(--success)' }}
+          className="min-h-[48px] px-8 py-3 rounded-xl font-semibold bg-success hover:bg-emerald-600 text-white transition-all w-full md:w-auto"
         >
           Mark Done
         </button>
