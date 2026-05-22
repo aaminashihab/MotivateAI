@@ -71,6 +71,7 @@ export interface SessionLog {
   
   // User-provided feedback
   sessionDifficulty?: 'too_easy' | 'just_right' | 'too_hard';
+  sessionRating?: number; // 1-5 star rating
   sessionNotes?: string; // optional user comment
   
   // Behavior signals (calculated on session completion)

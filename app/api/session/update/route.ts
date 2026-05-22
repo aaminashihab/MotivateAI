@@ -5,7 +5,7 @@ import { SessionLog } from '@/lib/types/sessionLog';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { userId, sessionId, tasksCompleted, taskCount } = body;
+    const { userId, sessionId, tasksCompleted, taskCount, sessionRating } = body;
 
     if (!userId || !sessionId) {
       return NextResponse.json(
@@ -33,18 +33,22 @@ export async function POST(request: NextRequest) {
         return task;
       });
 
-      await db.collection<SessionLog>('sessions').updateOne(
-        { userId, sessionId },
-        {
-          $set: {
-            completedAt: new Date(),
-            tasksCompleted: tasksCompleted,
-            completionRatio: completionRatio,
-            tasks: updatedTasks as any,
-            updatedAt: new Date()
-          }
+        const updateData: any = {
+          completedAt: new Date(),
+          tasksCompleted: tasksCompleted,
+          completionRatio: completionRatio,
+          tasks: updatedTasks as any,
+          updatedAt: new Date()
+        };
+
+        if (sessionRating !== undefined) {
+          updateData.sessionRating = sessionRating;
         }
-      );
+
+        await db.collection<SessionLog>('sessions').updateOne(
+          { userId, sessionId },
+          { $set: updateData }
+        );
 
       // --- Day 3: Make Optimizations Real ---
       // If session is fully completed, check total completed sessions

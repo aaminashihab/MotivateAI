@@ -7,6 +7,7 @@ import VideoEmbed from '@/components/VideoEmbed';
 import AdaptiveGoalInput from '@/components/AdaptiveGoalInput';
 import StreakWidget from '@/components/StreakWidget';
 import CoachMessage from '@/components/CoachMessage';
+import SessionCompleteModal from '@/components/SessionCompleteModal';
 import Link from 'next/link';
 
 const isToday = (date1: Date, date2: Date) => date1.toDateString() === date2.toDateString();
@@ -23,6 +24,7 @@ const isDayBeforeYesterday = (date1: Date, date2: Date) => {
 
 export default function Home() {
   const [goal, setGoal] = useState('');
+  const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -198,19 +200,19 @@ export default function Home() {
         localStorage.removeItem('motivateai_timer_state');
       }
 
-      alert("Congratulations! You've completed your action plan.");
+      setShowModal(true);
       setActiveIndex(tasks.length); // All done
     }
   };
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-[1536px]">
-      <div className="flex flex-col md:flex-row justify-between items-start flex-wrap gap-4 mb-8">
-        <div>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-fuchsia-400 mb-2 animate-slide-down">
+      <div className="flex flex-col md:flex-row justify-between items-center md:items-start flex-wrap gap-4 mb-8">
+        <div className="text-center md:text-left w-full md:w-auto">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-fuchsia-400 mb-2 animate-slide-down">
             MotivateAI
           </h1>
-          <p className="text-slate-400 text-lg md:text-xl animate-fade-in opacity-0" style={{ animationDelay: '0.3s', animationFillMode: 'forwards' }}>
+          <p className="text-slate-400 text-base sm:text-lg md:text-xl animate-fade-in opacity-0" style={{ animationDelay: '0.3s', animationFillMode: 'forwards' }}>
             Your Autonomous Agent for Building Consistency
           </p>
         </div>
@@ -271,6 +273,15 @@ export default function Home() {
             </div>
           )}
         </div>
+      )}
+
+      {showModal && userId && (
+        <SessionCompleteModal
+          userId={userId}
+          sessionId={localStorage.getItem('motivateai_session') || ''}
+          totalTasks={tasks.length}
+          onClose={() => setShowModal(false)}
+        />
       )}
     </div>
   );

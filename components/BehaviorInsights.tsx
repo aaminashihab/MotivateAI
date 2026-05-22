@@ -8,144 +8,161 @@ interface BehaviorInsightsProps {
 
 export default function BehaviorInsights({ profile }: BehaviorInsightsProps) {
   return (
-    <div className="glass-panel" style={{ marginTop: '2rem' }}>
-      <h2 style={{ marginBottom: '1.5rem' }}>🧠 Your Learning Profile</h2>
+    <div className="glass-panel relative overflow-hidden group">
+      {/* Background neon glow */}
+      <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 via-fuchsia-600 to-pink-600 rounded-3xl blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200" />
+      
+      <div className="relative">
+        <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+          <span className="text-3xl">🧠</span> Your Learning Profile
+        </h2>
 
-      {/* Key metrics */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
-        <MetricCard
-          label="Completion Rate"
-          value={`${profile.overallCompletionRate.toFixed(0)}%`}
-          icon="✅"
-          insight={
-            profile.overallCompletionRate > 80
-              ? 'Excellent consistency!'
-              : 'Keep pushing! You\'re getting there.'
-          }
-        />
-        <MetricCard
-          label="Avg Task Duration"
-          value={`${profile.avgTaskDuration.toFixed(0)} min`}
-          icon="⏱️"
-          insight={
-            profile.signals.prefersShortTasks
-              ? 'You excel at quick bursts'
-              : 'Medium-length tasks work best for you'
-          }
-        />
-        <MetricCard
-          label="Engagement Level"
-          value={profile.signals.engagementLevel.toUpperCase()}
-          icon="🔥"
-          insight={
-            profile.signals.engagementLevel === 'high'
-              ? 'You\'re crushing it!'
-              : 'Let\'s find your rhythm'
-          }
-        />
-        <MetricCard
-          label="Break Pattern"
-          value={`${profile.averageBreakSkipRate.toFixed(0)}% skip rate`}
-          icon="☕"
-          insight={
-            profile.signals.skipsBreaks
-              ? 'We\'ll insert breaks earlier for you'
-              : 'You take healthy breaks 💪'
-          }
-        />
-      </div>
-
-      {/* Adaptations applied */}
-      <div style={{ marginBottom: '2rem' }}>
-        <h3 style={{ marginBottom: '1rem' }}>🎯 Adaptations Applied</h3>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-          {profile.signals.prefersShortTasks && (
-            <AdaptationBadge
-              text="Short tasks optimized (10-15 min)"
-              reason="Based on your completion patterns"
-            />
-          )}
-          {profile.signals.skipsBreaks && (
-            <AdaptationBadge
-              text={`Breaks moved to ${profile.optimalBreakTiming} min mark`}
-              reason="You tend to skip longer task sequences"
-            />
-          )}
-          {profile.signals.dropoutAfterMinutes && (
-            <AdaptationBadge
-              text={`Sessions capped at ~${Math.max(30, profile.signals.dropoutAfterMinutes - 10)} min`}
-              reason={`You've historically disengaged after ${profile.signals.dropoutAfterMinutes} min`}
-            />
-          )}
-          {profile.signals.bestTimeOfDay && (
-            <AdaptationBadge
-              text={`Peak productivity: ${profile.signals.bestTimeOfDay}`}
-              reason="Schedule sessions when you're most focused"
-            />
-          )}
-          {profile.signals.highVariance && (
-            <AdaptationBadge
-              text="Variable task lengths (10, 18, 20 min)"
-              reason="Your focus varies day-to-day"
-            />
-          )}
-          {!profile.signals.prefersShortTasks && !profile.signals.skipsBreaks && !profile.signals.dropoutAfterMinutes && !profile.signals.bestTimeOfDay && !profile.signals.highVariance && (
-             <p style={{ color: 'var(--text-secondary)' }}>More data needed for specific adaptations.</p>
-          )}
+        {/* Key metrics */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <MetricCard
+            label="Completion Rate"
+            value={`${profile.overallCompletionRate.toFixed(0)}%`}
+            icon="✅"
+            insight={
+              profile.overallCompletionRate > 80
+                ? 'Excellent consistency!'
+                : 'Keep pushing! You\'re getting there.'
+            }
+            colorClass="from-emerald-600 to-emerald-400"
+          />
+          <MetricCard
+            label="Avg Task Duration"
+            value={`${profile.avgTaskDuration.toFixed(0)} min`}
+            icon="⏱️"
+            insight={
+              profile.signals.prefersShortTasks
+                ? 'You excel at quick bursts'
+                : 'Medium-length tasks work best for you'
+            }
+            colorClass="from-blue-600 to-blue-400"
+          />
+          <MetricCard
+            label="Engagement Level"
+            value={profile.signals.engagementLevel.toUpperCase()}
+            icon="🔥"
+            insight={
+              profile.signals.engagementLevel === 'high'
+                ? 'You\'re crushing it!'
+                : 'Let\'s find your rhythm'
+            }
+            colorClass="from-orange-600 to-orange-400"
+          />
+          <MetricCard
+            label="Break Pattern"
+            value={`${profile.averageBreakSkipRate.toFixed(0)}% skip rate`}
+            icon="☕"
+            insight={
+              profile.signals.skipsBreaks
+                ? 'We\'ll insert breaks earlier for you'
+                : 'You take healthy breaks 💪'
+            }
+            colorClass="from-purple-600 to-purple-400"
+          />
         </div>
-      </div>
 
-      {/* Consistency timeline */}
-      <div style={{ marginBottom: '2rem' }}>
-        <h3 style={{ marginBottom: '1rem' }}>📈 Consistency Trend</h3>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <div style={{ flex: 1, background: 'rgba(0,0,0,0.3)', height: '12px', borderRadius: '6px', overflow: 'hidden' }}>
-            <div
-              style={{
-                height: '100%',
-                width: `${profile.signals.consistencyScore}%`,
-                backgroundColor: getTrendColor(profile.signals.consistencyScore),
-              }}
-            />
+        {/* Adaptations applied */}
+        <div className="mb-8">
+          <h3 className="text-xl font-bold text-white mb-4">🎯 Inferred Preferences</h3>
+          <div className="flex flex-col gap-3">
+            {profile.signals.prefersShortTasks && (
+              <AdaptationBadge
+                text="Short tasks optimized (10-15 min)"
+                reason="Based on your completion patterns"
+              />
+            )}
+            {profile.signals.skipsBreaks && (
+              <AdaptationBadge
+                text={`Breaks moved to ${profile.optimalBreakTiming} min mark`}
+                reason="You tend to skip longer task sequences"
+              />
+            )}
+            {profile.signals.dropoutAfterMinutes && (
+              <AdaptationBadge
+                text={`Sessions capped at ~${Math.max(30, profile.signals.dropoutAfterMinutes - 10)} min`}
+                reason={`You've historically disengaged after ${profile.signals.dropoutAfterMinutes} min`}
+              />
+            )}
+            {profile.signals.bestTimeOfDay && (
+              <AdaptationBadge
+                text={`Peak productivity: ${profile.signals.bestTimeOfDay}`}
+                reason="Schedule sessions when you're most focused"
+              />
+            )}
+            {profile.signals.highVariance && (
+              <AdaptationBadge
+                text="Variable task lengths (10, 18, 20 min)"
+                reason="Your focus varies day-to-day"
+              />
+            )}
+            {!profile.signals.prefersShortTasks && !profile.signals.skipsBreaks && !profile.signals.dropoutAfterMinutes && !profile.signals.bestTimeOfDay && !profile.signals.highVariance && (
+               <p className="text-slate-400 italic">More data needed for specific adaptations.</p>
+            )}
           </div>
-          <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', minWidth: '200px' }}>
-            {profile.sessionConsistency === 'very_consistent'
-              ? '🌟 Very consistent!'
-              : profile.sessionConsistency === 'somewhat_consistent'
-              ? '📊 Getting more consistent.'
-              : '🌀 Patterns still forming.'}
-          </p>
         </div>
-      </div>
 
-      {/* Total investment */}
-      <div>
-        <h3 style={{ marginBottom: '1rem' }}>💪 Total Invested</h3>
-        <div>
-          <span style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--accent)' }}>{profile.totalHoursInvested.toFixed(1)}h </span>
-          <span style={{ color: 'var(--text-secondary)' }}>across {profile.recentSessions} recent sessions</span>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Consistency timeline */}
+          <div>
+            <h3 className="text-xl font-bold text-white mb-4">📈 Consistency Trend</h3>
+            <div className="flex flex-col gap-2">
+              <div className="w-full bg-slate-800/50 h-3 rounded-full overflow-hidden border border-slate-700">
+                <div
+                  className="h-full bg-gradient-to-r from-pink-500 to-purple-500 transition-all duration-1000 ease-out"
+                  style={{ width: `${profile.signals.consistencyScore}%` }}
+                />
+              </div>
+              <p className="text-sm text-purple-300">
+                {profile.sessionConsistency === 'very_consistent'
+                  ? '🌟 Very consistent!'
+                  : profile.sessionConsistency === 'somewhat_consistent'
+                  ? '📊 Getting more consistent.'
+                  : '🌀 Patterns still forming.'}
+              </p>
+            </div>
+          </div>
+
+          {/* Total investment */}
+          <div>
+            <h3 className="text-xl font-bold text-white mb-4">💪 Total Invested</h3>
+            <div className="flex items-baseline gap-2">
+              <span className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">
+                {profile.totalHoursInvested.toFixed(1)}h 
+              </span>
+              <span className="text-slate-400">across {profile.recentSessions} recent sessions</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-function MetricCard({ label, value, icon, insight }: { label: string; value: string; icon: string; insight: string; }) {
+function MetricCard({ label, value, icon, insight, colorClass }: { label: string; value: string; icon: string; insight: string; colorClass: string; }) {
   return (
-    <div style={{ background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: '12px', border: '1px solid var(--glass-border)' }}>
-      <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>{icon}</div>
-      <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>{label}</div>
-      <div style={{ fontSize: '1.2rem', fontWeight: 'bold', margin: '0.2rem 0' }}>{value}</div>
-      <div style={{ fontSize: '0.8rem', color: 'var(--accent)' }}>{insight}</div>
+    <div className="bg-slate-800/80 backdrop-blur-md p-5 rounded-2xl border border-slate-700/50 shadow-lg relative overflow-hidden group">
+      <div className={`absolute top-0 right-0 w-16 h-16 bg-gradient-to-br ${colorClass} rounded-bl-full opacity-20 group-hover:opacity-40 transition-opacity`}></div>
+      <div className="text-3xl mb-3">{icon}</div>
+      <div className="text-sm font-medium text-slate-400 uppercase tracking-wider">{label}</div>
+      <div className="text-2xl font-bold text-white my-1">{value}</div>
+      <div className="text-xs text-purple-300 font-medium">{insight}</div>
     </div>
   );
 }
 
 function AdaptationBadge({ text, reason }: { text: string; reason: string; }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: 'rgba(139, 92, 246, 0.1)', padding: '0.8rem 1rem', borderRadius: '8px' }}>
-      <div style={{ fontWeight: '600' }}>✨ {text}</div>
-      <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>{reason}</div>
+    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 bg-purple-900/20 border border-purple-500/20 p-4 rounded-xl hover:bg-purple-900/30 transition-colors">
+      <div className="font-bold text-purple-100 flex items-center gap-2">
+        <span className="text-purple-400">✨</span> {text}
+      </div>
+      <div className="text-sm text-purple-300 italic sm:ml-auto">
+        {reason}
+      </div>
     </div>
   );
 }
