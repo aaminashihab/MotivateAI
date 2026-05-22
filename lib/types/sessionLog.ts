@@ -113,5 +113,10 @@ export interface UserProfile {
     impactScore?: number; // did completion rate improve?
   }[];
   
+  // Real Profile Analytics
+  consistencyTrend?: { date: string; completionRate: number; engagement: number }[];
+  performanceByTime?: { time: string; performance: number }[];
+  weeklyStats?: { totalSessions: number; totalHours: number; avgPerSession: string; streakDays: number };
+  
   updatedAt: Date;
 }

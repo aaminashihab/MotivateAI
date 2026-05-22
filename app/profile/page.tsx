@@ -21,23 +21,7 @@ import {
   Cell
 } from 'recharts';
 
-const consistencyData = [
-  { date: 'Mon', completionRate: 60, engagement: 45 },
-  { date: 'Tue', completionRate: 65, engagement: 50 },
-  { date: 'Wed', completionRate: 72, engagement: 58 },
-  { date: 'Thu', completionRate: 78, engagement: 65 },
-  { date: 'Fri', completionRate: 85, engagement: 72 },
-  { date: 'Sat', completionRate: 88, engagement: 80 },
-  { date: 'Sun', completionRate: 92, engagement: 85 },
-];
-
-const performanceByTime = [
-  { time: '6-8 AM', performance: 92 },
-  { time: '8-10 AM', performance: 95 },
-  { time: '10-12 PM', performance: 78 },
-  { time: '2-4 PM', performance: 65 },
-  { time: '6-8 PM', performance: 72 },
-];
+// Removed hardcoded data, now using profile fields
 
 export default function ProfilePage() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -142,7 +126,7 @@ export default function ProfilePage() {
             <h3 className="text-xl font-bold text-white mb-4">📈 Consistency Trend</h3>
             <div style={{ width: '100%', height: 300 }}>
               <ResponsiveContainer>
-                <LineChart data={consistencyData}>
+                <LineChart data={profile.consistencyTrend || []}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(168, 85, 247, 0.2)" />
                   <XAxis dataKey="date" stroke="#a78bfa" />
                   <YAxis stroke="#a78bfa" />
@@ -180,7 +164,7 @@ export default function ProfilePage() {
             <h3 className="text-xl font-bold text-white mb-4">⏰ Peak Performance Times</h3>
             <div style={{ width: '100%', height: 250 }}>
               <ResponsiveContainer>
-                <BarChart data={performanceByTime}>
+                <BarChart data={profile.performanceByTime || []}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(168, 85, 247, 0.2)" />
                   <XAxis dataKey="time" stroke="#a78bfa" />
                   <YAxis stroke="#a78bfa" />
@@ -189,7 +173,7 @@ export default function ProfilePage() {
                     labelStyle={{ color: '#fff' }}
                   />
                   <Bar dataKey="performance" name="Performance %">
-                    {performanceByTime.map((entry, index) => (
+                    {(profile.performanceByTime || []).map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.performance > 80 ? '#10b981' : '#8b5cf6'} />
                     ))}
                   </Bar>
@@ -236,19 +220,19 @@ export default function ProfilePage() {
               <div className="space-y-4">
                 <div className="flex justify-between text-white border-b border-purple-500/20 pb-2">
                   <span>Total Sessions</span>
-                  <span className="font-bold text-purple-400">12</span>
+                  <span className="font-bold text-purple-400">{profile.weeklyStats?.totalSessions || 0}</span>
                 </div>
                 <div className="flex justify-between text-white border-b border-purple-500/20 pb-2">
                   <span>Total Hours</span>
-                  <span className="font-bold text-purple-400">18.5</span>
+                  <span className="font-bold text-purple-400">{profile.weeklyStats?.totalHours || 0}</span>
                 </div>
                 <div className="flex justify-between text-white border-b border-purple-500/20 pb-2">
                   <span>Avg Per Session</span>
-                  <span className="font-bold text-purple-400">1h 32m</span>
+                  <span className="font-bold text-purple-400">{profile.weeklyStats?.avgPerSession || '0m'}</span>
                 </div>
                 <div className="flex justify-between text-white">
                   <span>Streak Days</span>
-                  <span className="font-bold text-emerald-400">7 🔥</span>
+                  <span className="font-bold text-emerald-400">{profile.weeklyStats?.streakDays || 0} 🔥</span>
                 </div>
               </div>
             </div>
