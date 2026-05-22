@@ -117,6 +117,7 @@ export interface UserProfile {
   consistencyTrend?: { date: string; completionRate: number; engagement: number }[];
   performanceByTime?: { time: string; performance: number }[];
   weeklyStats?: { totalSessions: number; totalHours: number; avgPerSession: string; streakDays: number };
+  optimizations?: any[]; // Array of Adaptation objects
   
   updatedAt: Date;
 }

@@ -45,6 +45,28 @@ export async function POST(request: NextRequest) {
           }
         }
       );
+
+      // --- Day 3: Make Optimizations Real ---
+      // If session is fully completed, check total completed sessions
+      if (tasksCompleted >= taskCount && taskCount > 0) {
+        const completedSessionsCount = await db.collection('sessions').countDocuments({ 
+          userId, 
+          completedAt: { $exists: true } 
+        });
+
+        // Trigger optimization engine every 5 sessions
+        if (completedSessionsCount > 0 && completedSessionsCount % 5 === 0) {
+          try {
+            // We do a non-blocking background fetch to the optimization route
+            const baseUrl = request.headers.get('origin') || `http://${request.headers.get('host')}`;
+            fetch(`${baseUrl}/api/user/${userId}/optimize`, {
+              method: 'POST'
+            }).catch(e => console.warn('Background optimization failed:', e));
+          } catch (e) {
+            console.warn('Failed to trigger background optimization:', e);
+          }
+        }
+      }
     }
 
     return NextResponse.json({ success: true }, { status: 200 });

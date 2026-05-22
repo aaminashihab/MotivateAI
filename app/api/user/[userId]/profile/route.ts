@@ -168,8 +168,9 @@ export async function GET(
       const client = await clientPromise;
       const db = client.db('motivateai');
       const userDoc = await db.collection('users').findOne({ _id: userId as any });
-      if (userDoc && userDoc.streak) {
-        profile.weeklyStats.streakDays = userDoc.streak;
+      if (userDoc) {
+        if (userDoc.streak) profile.weeklyStats.streakDays = userDoc.streak;
+        if (userDoc.optimizations) profile.optimizations = userDoc.optimizations;
       }
     } catch(e) {}
     

@@ -26,80 +26,58 @@ import {
 export default function ProfilePage() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [adaptations] = useState<any[]>([
-    {
-      id: '1',
-      type: 'break_length',
-      before: '2 min breaks',
-      after: '5 min breaks',
-      reason: 'You were skipping breaks, causing focus drops after 30 min',
-      impact: 23,
-      timestamp: new Date('2026-05-20'),
-      aiReasoning: 'Analysis shows your engagement drops 40% after 30 minutes of continuous work. By increasing break duration to 5 minutes, you can recharge mentally and maintain 85%+ focus throughout sessions.'
-    },
-    {
-      id: '2',
-      type: 'session_time',
-      before: 'Afternoon sessions',
-      after: 'Morning sessions',
-      reason: 'Your performance peaks at 9-11 AM based on 7-day history',
-      impact: 34,
-      timestamp: new Date('2026-05-18'),
-      aiReasoning: 'Your completion rate is 95% in morning sessions vs 62% in afternoon. We\'ve rescheduled your high-difficulty tasks for 9-11 AM when your energy and focus are highest.'
-    },
-    {
-      id: '3',
-      type: 'task_duration',
-      before: '30-40 min task blocks',
-      after: '15-20 min task blocks',
-      reason: 'Shorter tasks match your focus span and boost completion confidence.',
-      impact: 28,
-      timestamp: new Date('2026-05-16'),
-      aiReasoning: 'You maintain peak focus for approximately 15-20 minutes before concentration dips. By breaking larger concepts into smaller, achievable chunks, you experience more frequent "wins" which boost motivation and maintain momentum.'
-    },
-    {
-      id: '4',
-      type: 'difficulty',
-      before: 'Mixed difficulty tasks',
-      after: 'Easy → Medium progression',
-      reason: 'Progressive difficulty builds confidence and prevents burnout.',
-      impact: 19,
-      timestamp: new Date('2026-05-14'),
-      aiReasoning: 'Your skip rate increases when you encounter hard tasks early in the week. By scheduling difficulty progression (Easy early week → Medium mid-week → Hard Friday), you build momentum and confidence.'
-    },
-    {
-      id: '5',
-      type: 'focus_strategy',
-      before: 'Long reading assignments',
-      after: 'Video tutorials + Interactive practice',
-      reason: 'Switched to video content based on your visual learning preference',
-      impact: 42,
-      timestamp: new Date('2026-05-12'),
-      aiReasoning: 'We noticed your completion time was 2x longer than estimated for text-heavy tasks. Switching the resource type to video tutorials aligned with your Visual Learning Style decreased your completion time and increased engagement.'
+  const [optimizing, setOptimizing] = useState(false);
+
+  const fetchProfile = async () => {
+    try {
+      let userId = localStorage.getItem('motivateai_user_id');
+      if (!userId) {
+        userId = `user_${Math.random().toString(36).substring(2, 15)}`;
+        localStorage.setItem('motivateai_user_id', userId);
+      }
+
+      const res = await fetch(`/api/user/${userId}/profile`);
+      if (res.ok) {
+        const data = await res.json();
+        
+        // Ensure timestamp is a Date object
+        if (data.optimizations) {
+          data.optimizations = data.optimizations.map((opt: any) => ({
+            ...opt,
+            timestamp: new Date(opt.timestamp)
+          }));
+        }
+        
+        setProfile(data);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
-  ]);
+  };
+
+  const handleOptimize = async () => {
+    if (!profile?.userId) return;
+    setOptimizing(true);
+    try {
+      const res = await fetch(`/api/user/${profile.userId}/optimize`, { method: 'POST' });
+      if (res.ok) {
+        // Refresh the profile to get the new optimizations
+        await fetchProfile();
+      } else {
+        const data = await res.json();
+        alert(`Failed to optimize: ${data.error || 'Unknown error'}`);
+      }
+    } catch (e) {
+      console.error(e);
+      alert('An error occurred while generating optimizations.');
+    } finally {
+      setOptimizing(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        let userId = localStorage.getItem('motivateai_user_id');
-        if (!userId) {
-          userId = `user_${Math.random().toString(36).substring(2, 15)}`;
-          localStorage.setItem('motivateai_user_id', userId);
-        }
-
-        const res = await fetch(`/api/user/${userId}/profile`);
-        if (res.ok) {
-          const data = await res.json();
-          setProfile(data);
-        }
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchProfile();
   }, []);
 
@@ -238,13 +216,38 @@ export default function ProfilePage() {
             </div>
           </div>
           <div className="mt-12">
-            <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
-              <span className="text-3xl">🔧</span> How We've Optimized for You
-            </h2>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+              <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                <span className="text-3xl">🔧</span> How We've Optimized for You
+              </h2>
+              <button 
+                onClick={handleOptimize}
+                disabled={optimizing}
+                className="bg-purple-600 hover:bg-purple-500 disabled:opacity-50 text-white px-4 py-2 rounded-lg font-bold shadow-lg shadow-purple-900/50 transition-all flex items-center gap-2"
+              >
+                {optimizing ? (
+                  <>
+                    <span className="loader" style={{ width: '20px', height: '20px', borderWidth: '2px' }}></span>
+                    Optimizing...
+                  </>
+                ) : (
+                  <>
+                    <span>✨</span> Run Optimization Engine
+                  </>
+                )}
+              </button>
+            </div>
+            
             <div className="grid gap-4">
-              {adaptations.map(adaptation => (
-                <AdaptationCard key={adaptation.id} adaptation={adaptation} />
-              ))}
+              {profile.optimizations && profile.optimizations.length > 0 ? (
+                profile.optimizations.map((adaptation: any) => (
+                  <AdaptationCard key={adaptation.id} adaptation={adaptation} />
+                ))
+              ) : (
+                <div className="text-center p-8 bg-slate-800/50 rounded-2xl border border-slate-700/50">
+                  <p className="text-slate-400">No optimizations yet. Keep completing sessions so the AI can learn your patterns!</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
