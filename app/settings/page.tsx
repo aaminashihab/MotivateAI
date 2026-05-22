@@ -1,16 +1,11 @@
 "use client";
 
-import React, { useState } from 'react';
-
-// Mocked API and Auth for Hackathon frontend demonstration
-const useAuth = () => ({ user: { id: 'user-1' } });
-const updateUserPreferences = async (userId: string, preferences: any) => {
-  console.log('Saving preferences for', userId, preferences);
-  return new Promise(resolve => setTimeout(resolve, 800));
-};
+import React, { useState, useEffect } from 'react';
 
 export default function Settings() {
-  const { user } = useAuth();
+  const [userId, setUserId] = useState<string>('');
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [preferences, setPreferences] = useState({
     // Notification Settings
     pushNotifications: true,
@@ -38,15 +33,60 @@ export default function Settings() {
 
   const [saved, setSaved] = useState(false);
 
+  useEffect(() => {
+    const fetchPreferences = async () => {
+      let currentUserId = localStorage.getItem('motivateai_user_id');
+      if (!currentUserId) {
+        currentUserId = `user_${Math.random().toString(36).substring(2, 15)}`;
+        localStorage.setItem('motivateai_user_id', currentUserId);
+      }
+      setUserId(currentUserId);
+
+      try {
+        const res = await fetch(`/api/users/${currentUserId}/preferences`);
+        if (res.ok) {
+          const data = await res.json();
+          if (Object.keys(data).length > 0) {
+            setPreferences(prev => ({ ...prev, ...data }));
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load preferences:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPreferences();
+  }, []);
+
   const handleSave = async () => {
+    if (!userId) return;
+    setSaving(true);
     try {
-      await updateUserPreferences(user.id, preferences);
-      setSaved(true);
-      setTimeout(() => setSaved(false), 3000);
+      const res = await fetch(`/api/users/${userId}/preferences`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(preferences),
+      });
+
+      if (res.ok) {
+        setSaved(true);
+        setTimeout(() => setSaved(false), 3000);
+      }
     } catch (error) {
       console.error('Failed to save preferences:', error);
+    } finally {
+      setSaving(false);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+        <span className="loader"></span>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-8 pt-24">
@@ -259,9 +299,10 @@ export default function Settings() {
           {/* Save Button */}
           <button
             onClick={handleSave}
-            className="w-full mt-8 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-700 hover:to-purple-600 text-white font-bold py-4 rounded-xl transition-all transform hover:-translate-y-1 hover:shadow-xl hover:shadow-purple-500/20 flex justify-center items-center gap-2 text-lg"
+            disabled={saving}
+            className="w-full mt-8 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-700 hover:to-purple-600 disabled:opacity-50 text-white font-bold py-4 rounded-xl transition-all transform hover:-translate-y-1 hover:shadow-xl hover:shadow-purple-500/20 flex justify-center items-center gap-2 text-lg"
           >
-            💾 Save Preferences
+            {saving ? '💾 Saving...' : '💾 Save Preferences'}
           </button>
         </div>
       </div>

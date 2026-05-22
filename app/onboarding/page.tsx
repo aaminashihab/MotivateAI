@@ -3,12 +3,6 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-// Mock API for Hackathon frontend demonstration
-const saveUserPreferences = async (preferences: any) => {
-  console.log('Saving onboarding preferences:', preferences);
-  return new Promise(resolve => setTimeout(resolve, 1000));
-};
-
 const QUESTIONS = [
   {
     id: 'learningStyle',
@@ -98,7 +92,18 @@ export default function Onboarding() {
     if (step === QUESTIONS.length - 1) {
       setLoading(true);
       try {
-        await saveUserPreferences(answers);
+        let currentUserId = localStorage.getItem('motivateai_user_id');
+        if (!currentUserId) {
+          currentUserId = `user_${Math.random().toString(36).substring(2, 15)}`;
+          localStorage.setItem('motivateai_user_id', currentUserId);
+        }
+
+        await fetch(`/api/users/${currentUserId}/preferences`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(answers),
+        });
+
         router.push('/');
       } catch (error) {
         console.error('Failed to save preferences:', error);
