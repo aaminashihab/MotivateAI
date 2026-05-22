@@ -40,6 +40,7 @@ export async function generateAdaptiveSession(
   // Step 3: Call Gemini with enriched prompt
   const targetDuration = userPreferences?.maxSessionDuration || 60;
   const targetDifficulty = userPreferences?.difficultyLevel || 'intermediate';
+  const minBreak = userPreferences?.minBreakDuration || 5;
   
   const fullPrompt = `${adaptationPrompt}
 
@@ -49,7 +50,7 @@ Please create a personalized ${targetDuration}-minute learning session that brea
 
 IMPORTANT RULES:
 1. Return ONLY valid JSON, no markdown, no extra text
-2. Each task should be 10-30 minutes, keeping the total time around ${targetDuration} minutes.
+2. The sum of all task durations PLUS the breaks between them must NOT exceed the target session duration of ${targetDuration} minutes. Every break MUST be at least ${minBreak} minutes long.
 3. Include a "resources" field with the key topic to search for on YouTube
 4. Consider the user's preferences in task duration and difficulty
 5. Prioritize completion likelihood over perfectionism

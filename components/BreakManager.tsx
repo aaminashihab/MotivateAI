@@ -77,16 +77,11 @@ export default function BreakManager({
 
   useEffect(() => {
     let interval: any = null;
-    if (isActive && timeLeft > 0) {
+    if (isActive) {
       interval = setInterval(() => setTimeLeft(t => t - 1), 1000);
-    } else if (timeLeft === 0 && isActive) {
-      setIsActive(false);
-      if (isBreakMode) {
-        onComplete();
-      }
     }
     return () => clearInterval(interval);
-  }, [isActive, timeLeft, onComplete, isBreakMode]);
+  }, [isActive]);
 
   const toggleTimer = () => setIsActive(!isActive);
 
@@ -103,18 +98,30 @@ export default function BreakManager({
   };
 
   const formatTime = (seconds: number) => {
-    const m = Math.floor(seconds / 60);
-    const s = seconds % 60;
-    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    const isNegative = seconds < 0;
+    const absSeconds = Math.abs(seconds);
+    const m = Math.floor(absSeconds / 60);
+    const s = absSeconds % 60;
+    const timeStr = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    return isNegative ? `+ ${timeStr}` : timeStr;
   };
+
+  const totalTime = isBreakMode ? breakDuration * 60 : initialMinutes * 60;
+  const percentLeft = Math.max(0, Math.min(100, (timeLeft / totalTime) * 100));
 
   if (isBreakMode) {
     return (
       <div className="glass-panel text-center border-success/50">
         <h2 className="text-2xl md:text-3xl font-bold mb-2">Break Time ({breakDuration} Min)</h2>
         <p className="text-success mb-6 px-4">{ACTIVITIES[activityIndex]}</p>
-        <div className="text-6xl md:text-7xl lg:text-8xl font-extrabold my-8 tabular-nums bg-clip-text text-transparent bg-gradient-to-br from-emerald-400 to-white">
+        <div className={`text-6xl md:text-7xl lg:text-8xl font-extrabold my-8 tabular-nums ${timeLeft < 0 ? 'text-red-400' : 'bg-clip-text text-transparent bg-gradient-to-br from-emerald-400 to-white'}`}>
           {formatTime(timeLeft)}
+        </div>
+        <div className="w-full bg-slate-700/50 h-3 rounded-full mb-8 overflow-hidden shadow-inner">
+          <div 
+            className={`h-full transition-all duration-1000 ease-linear ${timeLeft < 0 ? 'bg-red-500' : 'bg-emerald-400'}`} 
+            style={{ width: `${percentLeft}%` }}
+          ></div>
         </div>
         <div className="flex flex-col md:flex-row justify-center gap-4">
           <button 
@@ -149,8 +156,14 @@ export default function BreakManager({
         </p>
       )}
 
-      <div className="text-6xl md:text-7xl lg:text-8xl font-extrabold my-6 tabular-nums bg-clip-text text-transparent bg-gradient-to-br from-white to-slate-400">
+      <div className={`text-6xl md:text-7xl lg:text-8xl font-extrabold my-6 tabular-nums ${timeLeft < 0 ? 'text-rose-500' : 'bg-clip-text text-transparent bg-gradient-to-br from-white to-slate-400'}`}>
         {formatTime(timeLeft)}
+      </div>
+      <div className="w-full bg-slate-700/50 h-3 rounded-full mb-8 overflow-hidden shadow-inner">
+        <div 
+          className={`h-full transition-all duration-1000 ease-linear ${timeLeft < 0 ? 'bg-rose-500' : 'bg-emerald-400'}`} 
+          style={{ width: `${percentLeft}%` }}
+        ></div>
       </div>
       <div className="flex flex-col md:flex-row justify-center gap-4">
         <button 
