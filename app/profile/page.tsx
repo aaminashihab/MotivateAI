@@ -62,6 +62,26 @@ export default function ProfilePage() {
       impact: 34,
       timestamp: new Date('2026-05-18'),
       aiReasoning: 'Your completion rate is 95% in morning sessions vs 62% in afternoon. We\'ve rescheduled your high-difficulty tasks for 9-11 AM when your energy and focus are highest.'
+    },
+    {
+      id: '3',
+      type: 'task_duration',
+      before: '30-40 min task blocks',
+      after: '15-20 min task blocks',
+      reason: 'Shorter tasks match your focus span and boost completion confidence.',
+      impact: 28,
+      timestamp: new Date('2026-05-16'),
+      aiReasoning: 'You maintain peak focus for approximately 15-20 minutes before concentration dips. By breaking larger concepts into smaller, achievable chunks, you experience more frequent "wins" which boost motivation and maintain momentum.'
+    },
+    {
+      id: '4',
+      type: 'difficulty',
+      before: 'Mixed difficulty tasks',
+      after: 'Easy → Medium progression',
+      reason: 'Progressive difficulty builds confidence and prevents burnout.',
+      impact: 19,
+      timestamp: new Date('2026-05-14'),
+      aiReasoning: 'Your skip rate increases when you encounter hard tasks early in the week. By scheduling difficulty progression (Easy early week → Medium mid-week → Hard Friday), you build momentum and confidence.'
     }
   ]);
 

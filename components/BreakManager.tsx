@@ -4,10 +4,12 @@ import { useState, useEffect } from 'react';
 export default function BreakManager({ 
   initialMinutes, 
   taskIndex,
+  taskName,
   onComplete 
 }: { 
   initialMinutes: number, 
   taskIndex: number,
+  taskName?: string,
   onComplete: () => void 
 }) {
   const [timeLeft, setTimeLeft] = useState(initialMinutes * 60);
@@ -116,7 +118,12 @@ export default function BreakManager({
 
   return (
     <div className="glass-panel text-center">
-      <h2 className="text-2xl md:text-3xl font-bold mb-2">Current Task Timer</h2>
+      {taskName && (
+        <h2 className="text-xl md:text-2xl font-bold text-white mb-2 flex items-center justify-center gap-2">
+          📚 {taskName}
+        </h2>
+      )}
+      <p className="text-purple-300 text-sm font-medium mb-2 uppercase tracking-wider">Current Task Timer</p>
       <div className="text-6xl md:text-7xl lg:text-8xl font-extrabold my-8 tabular-nums bg-clip-text text-transparent bg-gradient-to-br from-white to-slate-400">
         {formatTime(timeLeft)}
       </div>

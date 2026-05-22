@@ -242,6 +242,7 @@ export default function Home() {
               <BreakManager 
                 initialMinutes={tasks[activeIndex].duration} 
                 taskIndex={activeIndex}
+                taskName={tasks[activeIndex].title}
                 onComplete={handleTaskComplete}
               />
             ) : (
