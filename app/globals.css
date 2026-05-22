@@ -15,9 +15,7 @@
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
+
   body {
     @apply bg-[linear-gradient(135deg,#0f172a_0%,#1e1b4b_100%)] text-foreground font-['Outfit',sans-serif] min-h-screen overflow-x-hidden;
   }
