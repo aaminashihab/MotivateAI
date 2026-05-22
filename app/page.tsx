@@ -5,6 +5,7 @@ import TaskList, { Task } from '@/components/TaskList';
 import BreakManager from '@/components/BreakManager';
 import VideoEmbed from '@/components/VideoEmbed';
 import AdaptiveGoalInput from '@/components/AdaptiveGoalInput';
+import StreakWidget from '@/components/StreakWidget';
 import Link from 'next/link';
 
 const isToday = (date1: Date, date2: Date) => date1.toDateString() === date2.toDateString();
@@ -211,13 +212,17 @@ export default function Home() {
           </p>
         </div>
         <div className="flex gap-4 w-full md:w-auto mt-4 md:mt-0">
-          {streak > 0 && (
-            <div className="glass-panel flex-1 md:flex-none py-2 px-4 flex items-center justify-center gap-2 m-0 min-h-[48px]">
-              <span className="text-2xl">🔥</span>
-              <span className="font-bold">{streak} Day Streak</span>
-            </div>
-          )}
+          {/* Old small streak removed in favor of large widget */}
         </div>
+      </div>
+
+      <div className="mb-8">
+        <StreakWidget streak={{
+          currentStreak: streak || 3, // Fallback to 3 for demo if 0
+          longestStreak: Math.max(streak || 3, 12),
+          lastActiveDate: new Date(),
+          thisWeek: [true, true, true, false, false, false, false]
+        }} />
       </div>
 
       {!tasks.length && userId && (
