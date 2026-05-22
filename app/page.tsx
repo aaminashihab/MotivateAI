@@ -6,6 +6,7 @@ import BreakManager from '@/components/BreakManager';
 import VideoEmbed from '@/components/VideoEmbed';
 import AdaptiveGoalInput from '@/components/AdaptiveGoalInput';
 import StreakWidget from '@/components/StreakWidget';
+import CoachMessage from '@/components/CoachMessage';
 import Link from 'next/link';
 
 const isToday = (date1: Date, date2: Date) => date1.toDateString() === date2.toDateString();
@@ -217,6 +218,8 @@ export default function Home() {
           {/* Old small streak removed in favor of large widget */}
         </div>
       </div>
+
+      {userId && <CoachMessage userId={userId} />}
 
       <div className="mb-8">
         <StreakWidget streak={{
