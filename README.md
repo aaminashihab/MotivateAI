@@ -117,13 +117,8 @@ GEMINI_API_KEY=your_gemini_api_key_here
 # YouTube Data API v3 (Required — learning resource search)
 YOUTUBE_API_KEY=your_youtube_api_key_here
 
-# Firebase (Required if using Firestore for session persistence)
-NEXT_PUBLIC_FIREBASE_API_KEY=
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
-NEXT_PUBLIC_FIREBASE_APP_ID=
+# MongoDB (Required for session persistence and tracking)
+MONGODB_URI=your_mongodb_connection_string_here
 
 # Optional: If you add auth later
 NEXTAUTH_SECRET=
@@ -133,7 +128,7 @@ NEXTAUTH_URL=http://localhost:3000
 **Where to get keys:**
 - Gemini API → [aistudio.google.com](https://aistudio.google.com/app/apikey)
 - YouTube Data API → [console.cloud.google.com](https://console.cloud.google.com) → APIs & Services → YouTube Data API v3
-- Firebase → [console.firebase.google.com](https://console.firebase.google.com)
+- MongoDB → [mongodb.com](https://www.mongodb.com)
 
 ---
 
@@ -546,12 +541,12 @@ export async function getWeeklyStats(userId: string) {
 
 Right now the app has almost no persistence. To make everything real, you need to store sessions. Here's the minimum schema:
 
-### Option A: Firebase Firestore (Recommended for quick setup)
+### Database Architecture (MongoDB)
 
 ```typescript
-// lib/firestore.ts
+// lib/types/sessionLog.ts
 
-// Collection: users/{userId}/sessions
+// Collection: sessions
 interface StoredSession {
   id: string
   topic: string
@@ -771,7 +766,7 @@ gcloud run services update motivateai \
 If you're picking this up to make it production-ready, attack in this order:
 
 ### Day 1: Data Foundation
-- [ ] Set up Firebase or implement localStorage sessions
+- [x] Set up MongoDB sessions
 - [ ] Add session save on completion (`handleSessionComplete`)
 - [ ] Store `startedAt`, `completedAt`, `completionRate`, `timeOfDay` per session
 - [ ] Wire streak to real session dates (not hardcoded)
