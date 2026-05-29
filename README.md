@@ -125,4 +125,4 @@ gcloud run services update motivateai \
   --region us-central1
 ```
 ---
-<p align="center">Released under the <a href="LICENSE">MIT License</a>. Copyright © 2026 Your Name.</p>
+<p align="center">Released under the <a href="LICENSE">MIT License</a>. Copyright © 2026 AMINA S.</p>
