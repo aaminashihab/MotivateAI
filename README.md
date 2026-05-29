@@ -759,23 +759,6 @@ gcloud run services update motivateai \
   --region europe-west1
 ```
 
----
-
-
-
----
-
-## 🐛 Known Issues
-
-1. **Cloud Build failing** — Docker build step exits with non-zero status. Check the full build log in Cloud Run → Logs Explorer. Likely a missing env var or node version mismatch in Dockerfile.
-
-2. **Profile data doesn't update** — Because sessions aren't being saved. Fix session persistence first (Day 1 above).
-
-3. **Streak resets** — Streak logic needs to compare `lastSessionDate` with today's date and increment/reset accordingly. Currently may be recalculating wrong.
-
-4. **YouTube embed CORS** — Sometimes the embed fails due to YouTube's iframe policies. Fall back to a "Watch on YouTube" link if embed fails.
-
-5. **Gemini rate limits** — If generating session plans for many users simultaneously, you'll hit rate limits on the free tier. Implement request queuing or upgrade to paid.
 
 
 ## 📄 License
