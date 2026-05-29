@@ -761,38 +761,7 @@ gcloud run services update motivateai \
 
 ---
 
-## 🗺️ Vibe Coding Priorities
 
-If you're picking this up to make it production-ready, attack in this order:
-
-### Day 1: Data Foundation
-- [x] Set up MongoDB sessions
-- [ ] Add session save on completion (`handleSessionComplete`)
-- [ ] Store `startedAt`, `completedAt`, `completionRate`, `timeOfDay` per session
-- [ ] Wire streak to real session dates (not hardcoded)
-
-### Day 2: Real Profile Analytics
-- [ ] Replace hardcoded stats with `calculateLearningStats(sessions)`
-- [ ] Build real consistency trend from last 7 days of sessions
-- [ ] Build real peak performance from session `timeOfDay` field
-- [ ] Weekly stats from actual data
-
-### Day 3: Make Optimizations Real ⭐
-- [ ] Build `generateOptimizations()` using Gemini + real session data
-- [ ] Run it after every 5th session completion
-- [ ] Show real before/after with real percentages
-- [ ] Apply the new preferences automatically
-
-### Day 4: Polish
-- [ ] Add rating prompt after session complete (1-5 stars)
-- [ ] Add post-session reflection (Gemini writes it)
-- [ ] Fix the "Patterns still forming" empty state — show something useful even with 1-2 sessions
-- [ ] Mobile responsive fixes
-
-### Day 5: Ship
-- [ ] Fix Cloud Build Docker error (check build logs for exact error)
-- [ ] Add error boundaries so API failures don't crash the UI
-- [ ] Test full flow: goal → session → complete → profile updates
 
 ---
 
@@ -808,20 +777,6 @@ If you're picking this up to make it production-ready, attack in this order:
 
 5. **Gemini rate limits** — If generating session plans for many users simultaneously, you'll hit rate limits on the free tier. Implement request queuing or upgrade to paid.
 
----
-
-## 🤝 Contributing
-
-This was built solo for a hackathon. If you're picking it up:
-
-1. Fork the repo
-2. Create a feature branch (`git checkout -b feature/real-analytics`)
-3. Follow the "Vibe Coding Priorities" order above
-4. PR back to main
-
-The code is intentionally lean — no over-engineering. Keep it that way.
-
----
 
 ## 📄 License
 
