@@ -1,7 +1,7 @@
 # MotivateAI 🔥
 ### Your Autonomous AI Agent for Building Consistency
 
-> **Built for the Google Gemini Hackathon** — An AI-powered learning coach that actively builds sustainable work habits by dynamically scheduling tasks, sourcing real-world learning materials, and intelligently managing breaks.
+> **Built for the Google Cloud Rapid Agent Hackathon** — An AI-powered learning coach that actively builds sustainable work habits by dynamically scheduling tasks, sourcing real-world learning materials, and intelligently managing breaks.
 
 [![Live Demo](https://img.shields.io/badge/Live-Demo-purple?style=for-the-badge)](https://motivateai-471444428139.europe-west1.run.app)
 [![GitHub](https://img.shields.io/badge/GitHub-aaminashihab/MotivateAI-black?style=for-the-badge&logo=github)](https://github.com/aaminashihab/MotivateAI)
@@ -124,3 +124,5 @@ gcloud run services update motivateai \
   --set-env-vars GEMINI_API_KEY=xxx,YOUTUBE_API_KEY=xxx,MONGODB_URI=xxx \
   --region us-central1
 ```
+---
+<p align="center">Released under the <a href="LICENSE">MIT License</a>. Copyright © 2026 Your Name.</p>
