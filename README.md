@@ -4,7 +4,7 @@
 
 > Built for the **Google Cloud Rapid Agent Hackathon** — an AI-powered learning coach that actively builds sustainable study habits by dynamically scheduling tasks, sourcing real-world learning materials, and intelligently managing breaks.
 
-[![Live Demo](https://img.shields.io/badge/Live-Demo-purple?style=for-the-badge)](https://motivateai-471444428139.europe-west1.run.app)
+[![Live Demo](https://img.shields.io/badge/Live-Demo-purple?style=for-the-badge)](https://vercel.com/amina-s-s-projects/motivate-ai-k1at/ASJHtix2LSotzgt8ZszpFui64X9h)
 [![GitHub](https://img.shields.io/badge/GitHub-aaminashihab/MotivateAI-black?style=for-the-badge&logo=github)](https://github.com/aaminashihab/MotivateAI)
 [![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)](https://nextjs.org)
 [![Gemini](https://img.shields.io/badge/Gemini-API-blue?style=for-the-badge&logo=google)](https://ai.google.dev)
