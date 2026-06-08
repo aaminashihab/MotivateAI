@@ -107,18 +107,6 @@ The standout feature: click **Run Optimization Engine** to trigger a Gemini anal
 
 ---
 
-## 👤 My Contribution
-
-This project was built using AI-assisted development for the Google Cloud Hackathon. My specific contributions:
-
-- Designed the **Gemini prompt architecture** — schema structure, system instructions, and JSON response contracts
-- Made the **product decisions** — feature prioritization, UX flow, and behavioral analytics design
-- Configured **Google Cloud Run deployment** (europe-west1) with environment-based secrets management
-- Implemented **security patterns** including prompt sanitization and schema enforcement
-- Integrated **YouTube Data API** for automated tutorial sourcing
-
----
-
 ## 🚀 What I'd Build Next
 
 - Google OAuth login for persistent cross-device profiles
