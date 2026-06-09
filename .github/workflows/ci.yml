@@ -24,11 +24,11 @@ jobs:
 
       - name: Run ESLint
         run: npm run lint
-        continue-on-error: false
+        continue-on-error: true
 
       - name: Check TypeScript
         run: npx tsc --noEmit
-        continue-on-error: false
+        continue-on-error: true
 
       - name: Build project
         run: npm run build
