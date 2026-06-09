@@ -148,7 +148,7 @@ You MUST return a JSON structure adhering to this schema:
 }`;
 
     const model = genAI.getGenerativeModel({ 
-      model: "gemini-2.0-flash",
+      model: "gemini-2.5-flash",
       tools: geminiTools.length > 0 ? geminiTools : undefined,
       systemInstruction,
       generationConfig: {

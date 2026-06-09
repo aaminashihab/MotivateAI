@@ -62,7 +62,7 @@ Please create a personalized 60-minute learning session that breaks down this go
 
   try {
     const model = genAI.getGenerativeModel({ 
-      model: 'gemini-2.0-flash',
+      model: 'gemini-2.5-flash',
       systemInstruction: systemPrompt,
       generationConfig: {
         responseMimeType: 'application/json',

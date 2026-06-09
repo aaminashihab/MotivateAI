@@ -46,7 +46,7 @@ export async function GET(
     if (process.env.GEMINI_API_KEY || process.env.GOOGLE_GEMINI_API_KEY) {
       try {
         const profile = analyzeUserBehavior(sessions);
-        const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+        const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
         let prompt = `You are an empathetic, motivating AI learning coach. 
 Write a short, punchy 1-2 sentence message to the user when they open their dashboard today.
