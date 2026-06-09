@@ -19,11 +19,25 @@ function mcpTypeToGeminiType(type: string): SchemaType {
   }
 }
 
+interface MCPTool {
+  name: string;
+  description: string;
+  inputSchema?: {
+    properties?: Record<string, { type: string; description?: string }>;
+    required?: string[];
+  };
+}
+
+interface PropertySchema {
+  type: SchemaType;
+  description: string;
+}
+
 // Convert MCP tool to Gemini Function Declaration
-function mcpToolToGeminiTool(mcpTool: any): FunctionDeclaration {
-  const properties: any = {};
+function mcpToolToGeminiTool(mcpTool: MCPTool): FunctionDeclaration {
+  const properties: Record<string, PropertySchema> = {};
   if (mcpTool.inputSchema?.properties) {
-    for (const [key, prop] of Object.entries<any>(mcpTool.inputSchema.properties)) {
+    for (const [key, prop] of Object.entries(mcpTool.inputSchema.properties)) {
       properties[key] = {
         type: mcpTypeToGeminiType(prop.type),
         description: prop.description || '',
@@ -55,7 +69,7 @@ function sanitizeGoalInput(input: string): string {
     /act\s+as\s+a/gi,
     /jailbreak/gi,
     /bypass\s+rules/gi
-  ];
+   ];
 
   for (const pattern of injectionPatterns) {
     sanitized = sanitized.replace(pattern, '');
@@ -83,22 +97,22 @@ export async function POST(req: Request) {
       return getFallbackData(sanitizedGoal);
     }
 
-    let mcpClients: Record<string, any> = {};
-    let allMcpTools: any[] = [];
-    let toolRegistry: Record<string, string> = {}; // tool_name -> client_id
+    const mcpClients: Record<string, { listTools: () => Promise<{ tools: MCPTool[] }>; callTool: (opts: { name: string; arguments: Record<string, unknown> }) => Promise<unknown> }> = {};
+    let allMcpTools: MCPTool[] = [];
+    const toolRegistry: Record<string, string> = {}; // tool_name -> client_id
     let geminiTools: Tool[] = [];
     
     // Attempt to connect to MCP and fetch tools
     try {
-      mcpClients = await getMcpClients();
+      const fetchedMcpClients = await getMcpClients();
       
-      for (const [clientId, client] of Object.entries(mcpClients)) {
+      for (const [clientId, client] of Object.entries(fetchedMcpClients)) {
         try {
           const toolsResponse = await client.listTools();
           const tools = toolsResponse.tools;
           allMcpTools = [...allMcpTools, ...tools];
           
-          tools.forEach((t: any) => {
+          tools.forEach((t: MCPTool) => {
              toolRegistry[t.name.replace(/-/g, '_')] = clientId;
           });
         } catch (e) {
@@ -117,7 +131,7 @@ export async function POST(req: Request) {
     const systemInstruction = `You are MotivateAI, an autonomous agent helping someone build consistency.
 You have access to GitHub via MCP. If the goal is coding-related, USE YOUR TOOLS to search GitHub repositories or read files to find REAL project ideas, tutorials, or code to base your plan on!
 
-You ALSO have access to MongoDB via MCP. You can query the 'motivateai' database to fetch user session histories, past goals, or performance data to deeply personalize the session plan based on their past behavior.
+You ALSO have access to MongoDB via MCP. You can query the 'motivateai' database to fetch user session histories, past goals, or performance data to deeply personalize the session plan based on t[...]
 
 Break the goal down into an immediate, actionable, step-by-step 1-hour session based on real data if possible.
 Provide realistic time estimates (in minutes) for each micro-task. Keep tasks short (10-30 mins max) to prevent burnout.
@@ -188,8 +202,9 @@ You MUST return a JSON structure adhering to this schema:
             arguments: call.args as Record<string, unknown>,
           });
           toolResultText = JSON.stringify(result);
-        } catch (e: any) {
-          toolResultText = `Error calling tool: ${e.message}`;
+        } catch (e) {
+          const errorMessage = e instanceof Error ? e.message : 'Unknown error';
+          toolResultText = `Error calling tool: ${errorMessage}`;
         }
       } else {
         toolResultText = "Tool not found or target MCP client not connected.";

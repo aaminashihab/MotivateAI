@@ -1,5 +1,15 @@
 "use client";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+
+interface BreakManagerProps {
+  initialMinutes: number;
+  taskIndex: number;
+  taskName?: string;
+  totalTasks?: number;
+  onComplete: () => void;
+  onSkipTask?: () => void;
+  onEndEarly?: () => void;
+}
 
 export default function BreakManager({ 
   initialMinutes, 
@@ -9,29 +19,25 @@ export default function BreakManager({
   onComplete,
   onSkipTask,
   onEndEarly
-}: { 
-  initialMinutes: number, 
-  taskIndex: number,
-  taskName?: string,
-  totalTasks?: number,
-  onComplete: () => void,
-  onSkipTask?: () => void,
-  onEndEarly?: () => void
-}) {
+}: BreakManagerProps) {
   const [timeLeft, setTimeLeft] = useState(initialMinutes * 60);
   const [isActive, setIsActive] = useState(false);
   const [isBreakMode, setIsBreakMode] = useState(false);
   const [activityIndex, setActivityIndex] = useState(0);
   const [breakDuration, setBreakDuration] = useState(5); // Default 5 minutes
+  const hasInitialized = useRef(false);
 
   const ACTIVITIES = [
     "💧 Time to hydrate! Grab a glass of water.",
     "🫁 Take 3 deep breaths. Inhale... Exhale...",
-    "🌟 'Small daily improvements over time lead to stunning results.'",
+    "🌟 Small daily improvements over time lead to stunning results.",
     "🚶‍♂️ Stand up and stretch your legs for a moment."
   ];
 
   useEffect(() => {
+    if (hasInitialized.current) return;
+    hasInitialized.current = true;
+
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('motivateai_timer_state');
       if (saved) {
@@ -41,15 +47,14 @@ export default function BreakManager({
             setTimeLeft(parsed.timeLeft);
             setIsBreakMode(parsed.isBreakMode || false);
             setActivityIndex(parsed.activityIndex || Math.floor(Math.random() * ACTIVITIES.length));
-            setIsActive(false);
             return;
           }
-        } catch (e) {}
+        } catch {
+          // Parsing error, ignore
+        }
       }
     }
     setTimeLeft(initialMinutes * 60);
-    setIsBreakMode(false);
-    setIsActive(false);
     setActivityIndex(Math.floor(Math.random() * ACTIVITIES.length));
 
     // Fetch user preferences for break duration
@@ -66,7 +71,7 @@ export default function BreakManager({
           .catch(err => console.error("Failed to load preferences in BreakManager", err));
       }
     }
-  }, [initialMinutes, taskIndex]);
+  }, [initialMinutes, taskIndex, ACTIVITIES.length]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -80,11 +85,13 @@ export default function BreakManager({
   }, [timeLeft, taskIndex, isBreakMode, activityIndex]);
 
   useEffect(() => {
-    let interval: any = null;
+    let interval: NodeJS.Timeout | null = null;
     if (isActive) {
       interval = setInterval(() => setTimeLeft(t => t - 1), 1000);
     }
-    return () => clearInterval(interval);
+    return () => {
+      if (interval) clearInterval(interval);
+    };
   }, [isActive]);
 
   const toggleTimer = () => setIsActive(!isActive);

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 export interface StreakData {
   currentStreak: number;
@@ -11,12 +11,16 @@ export interface StreakData {
 
 export default function StreakWidget({ streak }: { streak: StreakData }) {
   const [flames, setFlames] = useState<number[]>([]);
+  const hasInitialized = useRef(false);
 
   useEffect(() => {
+    if (hasInitialized.current) return;
+    hasInitialized.current = true;
+
     if (streak.currentStreak > 0) {
       setFlames(Array(Math.min(streak.currentStreak, 7)).fill(0));
     }
-  }, [streak]);
+  }, [streak.currentStreak]);
 
   const getMilestoneMessage = (days: number) => {
     if (days >= 100) return '⭐ Century Champion!';
@@ -31,7 +35,7 @@ export default function StreakWidget({ streak }: { streak: StreakData }) {
   return (
     <div className="bg-gradient-to-br from-orange-900/40 to-red-900/40 border border-orange-500/30 rounded-3xl p-8 relative overflow-hidden group">
       {/* Background glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-orange-500/20 blur-3xl rounded-full pointer-events-none group-hover:bg-orange-500/30 transition-all duration-700"></div>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-orange-500/20 blur-3xl rounded-full pointer-events-none group-hover:bg-orange-500/30 transition-all duration-500"></div>
       
       <div className="text-center relative z-10">
         {/* Main Streak Display */}
@@ -49,14 +53,14 @@ export default function StreakWidget({ streak }: { streak: StreakData }) {
 
         {/* Milestone Message */}
         {milestone && (
-          <div className="bg-gradient-to-r from-yellow-500/20 via-yellow-400/30 to-yellow-500/20 border border-yellow-500/50 text-yellow-300 px-6 py-2.5 rounded-full mb-8 text-sm font-bold inline-block shadow-lg shadow-yellow-500/20 animate-slide-down">
+          <div className="bg-gradient-to-r from-yellow-500/20 via-yellow-400/30 to-yellow-500/20 border border-yellow-500/50 text-yellow-300 px-6 py-2.5 rounded-full mb-8 text-sm font-bold inline-block">
             {milestone}
           </div>
         )}
 
         {/* Week View */}
         <div className="mb-8 bg-slate-900/60 p-5 rounded-2xl border border-slate-700/50">
-          <p className="text-orange-300 text-xs font-bold uppercase tracking-widest mb-4">This Week's Activity</p>
+          <p className="text-orange-300 text-xs font-bold uppercase tracking-widest mb-4">This Week&apos;s Activity</p>
           <div className="flex gap-2 justify-between max-w-[280px] mx-auto">
             {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, idx) => (
               <div key={`${day}-${idx}`} className="text-center">

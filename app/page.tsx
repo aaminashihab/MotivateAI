@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import TaskList, { Task } from '@/components/TaskList';
 import BreakManager from '@/components/BreakManager';
 import VideoEmbed from '@/components/VideoEmbed';
@@ -8,7 +8,6 @@ import AdaptiveGoalInput from '@/components/AdaptiveGoalInput';
 import StreakWidget from '@/components/StreakWidget';
 import CoachMessage from '@/components/CoachMessage';
 import SessionCompleteModal from '@/components/SessionCompleteModal';
-import Link from 'next/link';
 
 const isToday = (date1: Date, date2: Date) => date1.toDateString() === date2.toDateString();
 const isYesterday = (date1: Date, date2: Date) => {
@@ -22,20 +21,41 @@ const isDayBeforeYesterday = (date1: Date, date2: Date) => {
   return dayBefore.toDateString() === date2.toDateString();
 };
 
+interface VideoData {
+  videoId: string;
+  title: string;
+}
+
+interface PlanTask {
+  id?: string;
+  name: string;
+  durationMinutes: number;
+}
+
+interface Plan {
+  goal: string;
+  tasks: PlanTask[];
+  sessionId?: string;
+}
+
 export default function Home() {
   const [goal, setGoal] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [videoData, setVideoData] = useState<{ videoId: string, title: string } | null>(null);
+  const [videoData, setVideoData] = useState<VideoData | null>(null);
   const [streak, setStreak] = useState(0);
   const [userId, setUserId] = useState<string>('');
   const [sessionId, setSessionId] = useState<string>('');
   const [skippedCount, setSkippedCount] = useState(0);
+  const hasInitialized = useRef(false);
 
   // Load session and streak on mount
   useEffect(() => {
+    if (hasInitialized.current) return;
+    hasInitialized.current = true;
+
     if (typeof window !== 'undefined') {
       let currentUserId = localStorage.getItem('motivateai_user_id');
       if (!currentUserId) {
@@ -58,7 +78,9 @@ export default function Home() {
             if (data.sessionId) setSessionId(data.sessionId);
             if (data.skippedCount) setSkippedCount(data.skippedCount);
           }
-        } catch (e) {}
+        } catch {
+          // Parsing error, ignore
+        }
       }
 
       const savedStreak = localStorage.getItem('motivateai_streak');
@@ -67,13 +89,13 @@ export default function Home() {
         const lastCompleted = new Date(lastCompletedStr);
         const today = new Date();
         if (isToday(today, lastCompleted) || isYesterday(today, lastCompleted) || isDayBeforeYesterday(today, lastCompleted)) {
-          setStreak(parseInt(savedStreak));
+          setStreak(parseInt(savedStreak, 10));
         } else {
           setStreak(0);
           localStorage.setItem('motivateai_streak', '0');
         }
       } else if (savedStreak) {
-        setStreak(parseInt(savedStreak));
+        setStreak(parseInt(savedStreak, 10));
       }
     }
   }, []);
@@ -89,53 +111,11 @@ export default function Home() {
         localStorage.removeItem('motivateai_session');
       }
     }
-  }, [goal, tasks, activeIndex, videoData]);
+  }, [goal, tasks, activeIndex, videoData, sessionId, skippedCount]);
 
-  const handleGenerate = async () => {
-    if (!goal) return;
-    setLoading(true);
-    setTasks([]);
-    setVideoData(null);
-    setActiveIndex(0);
-    setSessionId('');
-    if (typeof window !== 'undefined') localStorage.removeItem('motivateai_timer_state');
-
-    try {
-      // 1. Fetch Task Breakdown
-      const res = await fetch('/api/agent', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ goal })
-      });
-      const data = await res.json();
-      
-      if (data.tasks) {
-        setTasks(data.tasks);
-      } else {
-        alert("Failed to parse tasks. Please try again.");
-      }
-
-      // Calculate total duration for video filter
-      const totalDuration = data.tasks ? data.tasks.reduce((sum: number, t: any) => sum + (t.durationMinutes || t.duration || 15), 0) : 15;
-      
-      // 2. Fetch Relevant YouTube Video
-      const ytRes = await fetch(`/api/youtube?q=${encodeURIComponent(goal)}&duration=${totalDuration}`);
-      const ytData = await ytRes.json();
-      if (ytData.videoId) {
-        setVideoData(ytData);
-      }
-
-    } catch (err) {
-      console.error(err);
-      alert('An error occurred while generating your plan.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSessionGenerated = async (plan: any) => {
+  const handleSessionGenerated = async (plan: Plan) => {
     // Map adaptive plan to local Task format
-    const newTasks = plan.tasks.map((t: any) => ({
+    const newTasks = plan.tasks.map((t: PlanTask) => ({
       id: t.id,
       title: t.name,
       duration: t.durationMinutes
@@ -149,7 +129,7 @@ export default function Home() {
     if (typeof window !== 'undefined') localStorage.removeItem('motivateai_timer_state');
     
     // Calculate total duration for video filter
-    const totalDuration = plan.tasks.reduce((sum: number, t: any) => sum + (t.durationMinutes || t.duration || 15), 0);
+    const totalDuration = plan.tasks.reduce((sum: number, t: PlanTask) => sum + (t.durationMinutes || 15), 0);
     
     // Fetch video
     try {
@@ -300,9 +280,6 @@ export default function Home() {
             Your Autonomous Agent for Building Consistency
           </p>
         </div>
-        <div className="flex gap-4 w-full md:w-auto mt-4 md:mt-0">
-          {/* Old small streak removed in favor of large widget */}
-        </div>
       </div>
 
       {userId && <CoachMessage userId={userId} />}
@@ -345,7 +322,7 @@ export default function Home() {
                 <p className="text-slate-300 mb-6">Great job staying consistent today.</p>
                 <button 
                   onClick={() => setTasks([])}
-                  className="w-full md:w-auto min-h-[48px] bg-gradient-to-r from-emerald-400 to-cyan-500 hover:from-emerald-300 hover:to-cyan-400 hover:shadow-[0_0_25px_rgba(16,185,129,0.5)] text-slate-900 font-bold tracking-wide py-3 px-8 rounded-xl transition-all duration-300 transform hover:-translate-y-1"
+                  className="w-full md:w-auto min-h-[48px] bg-gradient-to-r from-emerald-400 to-cyan-500 hover:from-emerald-300 hover:to-cyan-400 hover:shadow-[0_0_25px_rgba(16,185,129,0.5)] text-white font-bold py-3 px-8 rounded-xl transition-all"
                 >
                   Start New Session
                 </button>
