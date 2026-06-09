@@ -33,7 +33,7 @@ Self-directed online learning is fundamentally broken. **Over 95% of self-learne
 
 ## 🧠 The Solution
 
-MotivateAI acts as an **always-on cognitive learning companion**. Using Google Gemini 2.0, it analyzes your real-time learning signals — historical task completion rates, average focus durations, optimal break intervals, and focus drop-off thresholds — to dynamically schedule every micro-session specifically to your focus habits.
+MotivateAI acts as an **always-on cognitive learning companion**. Using Google Gemini 2.5, it analyzes your real-time learning signals — historical task completion rates, average focus durations, optimal break intervals, and focus drop-off thresholds — to dynamically schedule every micro-session specifically to your focus habits.
 
 ---
 
@@ -43,7 +43,7 @@ MotivateAI acts as an **always-on cognitive learning companion**. Using Google G
 flowchart TD
     A([🎯 User Goal]) -->|1. Submit goal| B[Adaptive Goal Input]
     B -->|2. Fetch behavioral profile| C[(MongoDB\nSession Store)]
-    C -->|3. Past sessions & preferences| D[Gemini 2.0\nSession Planner]
+    C -->|3. Past sessions & preferences| D[Gemini 2.5\nSession Planner]
     D -->|4. Generate JSON session plan| E[YouTube Search\nSourcing]
     E -->|5. Sourced tutorial + coach note| F[Active Session\nRunner]
     F -->|6. Real-time timers & signals| G[Behavioral Signal\nAnalyzer]
@@ -63,7 +63,7 @@ flowchart TD
 ## ✨ Core Features
 
 ### 1. Autonomous Session Generation
-Submit any learning goal (e.g. "Learn Python encapsulation"). Gemini 2.0 reviews your profile history, calculates your momentum, and generates an optimized curriculum split into bite-sized tasks. It automatically fetches a relevant YouTube tutorial and places a personalized Coach Note guiding you to the most relevant timestamp.
+Submit any learning goal (e.g. "Learn Python encapsulation"). Gemini 2.5 reviews your profile history, calculates your momentum, and generates an optimized curriculum split into bite-sized tasks. It automatically fetches a relevant YouTube tutorial and places a personalized Coach Note guiding you to the most relevant timestamp.
 
 ### 2. Empathic AI Coach Check-in
 Every dashboard load triggers a Gemini-generated personalized message referencing your actual history — streak status, last concept completed, or a non-guilt-tripping nudge if you've been away.
@@ -90,9 +90,9 @@ The standout feature: click **Run Optimization Engine** to trigger a Gemini anal
 | Frontend | Next.js 15 (App Router), React 19, TypeScript |
 | Styling | Tailwind CSS — Dark Glassmorphism UI |
 | Database | MongoDB (session logs, preferences, optimization history) |
-| AI Model | Google Gemini 2.0 Flash via `@google/generative-ai` SDK |
+| AI Model | Google Gemini 2.5 Flash via `@google/generative-ai` SDK |
 | Integrations | YouTube Data API v3 |
-| Deployment | Google Cloud Run (europe-west1) + Cloud Build CI/CD |
+| Deployment | Vercel |
 | Containerization | Docker (multi-stage optimized build) |
 
 ---
@@ -150,15 +150,15 @@ npm run dev
 
 ---
 
-## ☁️ Cloud Deployment (Google Cloud Run)
+## ☁️ Cloud Deployment (Vercel)
 
-```bash
-gcloud run services update motivateai \
-  --set-env-vars GEMINI_API_KEY=xxx,YOUTUBE_API_KEY=xxx,MONGODB_URI=xxx \
-  --region europe-west1
-```
+The application is deployed on **Vercel** with automatic continuous deployment (CD) on every push to `main`.
 
-The app uses a multi-stage Dockerfile with Cloud Build configured to auto-deploy on every push to main.
+### Setup Environment Variables on Vercel
+Add the following variables in your **Vercel Project Settings -> Environment Variables**:
+* `GEMINI_API_KEY`
+* `YOUTUBE_API_KEY`
+* `MONGODB_URI`
 
 ---
 
