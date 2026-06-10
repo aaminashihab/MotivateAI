@@ -2,7 +2,7 @@
 # MotivateAI 🔥
 ### Your AI-Powered Learning Coach for Building Study Consistency
 
-> Built for the **Google Cloud Rapid Agent Hackathon** — an AI-powered learning coach that actively builds sustainable study habits by dynamically scheduling tasks, sourcing real-world learning materials, and intelligently managing breaks.
+> Built for the **Google Cloud Rapid Agent Hackathon** — An agentic AI learning coach that analyzes your last 30 sessions and uses a multi-turn Gemini tool-calling loop to generate personalized study plans — triggered on demand. .
 
 [![Live Demo](https://img.shields.io/badge/Live-Demo-purple?style=for-the-badge)](https://motivate-ai-k1at-ihl7u23se-amina-s-s-projects.vercel.app/)
 [![GitHub](https://img.shields.io/badge/GitHub-aaminashihab/MotivateAI-black?style=for-the-badge&logo=github)](https://github.com/aaminashihab/MotivateAI)
