@@ -1,6 +1,6 @@
 
 # MotivateAI 🔥
-### Your Autonomous AI Agent for Building Learning Consistency
+### Your AI-Powered Learning Coach for Building Study Consistency
 
 > Built for the **Google Cloud Rapid Agent Hackathon** — an AI-powered learning coach that actively builds sustainable study habits by dynamically scheduling tasks, sourcing real-world learning materials, and intelligently managing breaks.
 
