@@ -1,6 +1,6 @@
 
 # MotivateAI 🔥
-### Your AI-Powered Learning Coach for Building Study Consistency
+### Your Agentic AI Learning Coach for Building Study Consistency
 
 > Built for the **Google Cloud Rapid Agent Hackathon** — An agentic AI learning coach that analyzes your last 30 sessions and uses a multi-turn Gemini tool-calling loop to generate personalized study plans — triggered on demand. .
 
