@@ -84,6 +84,9 @@ export function analyzeUserBehavior(sessions: SessionLog[]): UserProfile {
 
   // === STREAK INFO ===
   const lastSessionDate = recentSessions[recentSessions.length - 1]?.startedAt;
+  // Streaks are computed from the full session history passed in, not just
+  // the last 10, so they aren't artificially capped.
+  const streaks = calculateStreaks(sessions);
 
   return {
     userId,
@@ -101,8 +104,8 @@ export function analyzeUserBehavior(sessions: SessionLog[]): UserProfile {
     ),
     sessionConsistency: getConsistencyLabel(consistencyScore),
     totalHoursInvested: totalHours,
-    longestStreak: 7, // TODO: calculate from streak DB
-    currentStreak: 1, // TODO: calculate from streak DB
+    longestStreak: streaks.longestStreak,
+    currentStreak: streaks.currentStreak,
     lastSessionDate: lastSessionDate || new Date(),
     adaptationHistory: [],
     updatedAt: new Date(),
@@ -258,6 +261,69 @@ function determineBestTimeOfDay(
     | 'afternoon'
     | 'evening'
     | undefined;
+}
+
+/**
+ * Calculate current and longest streaks (in days) from session history.
+ * A "streak day" is any calendar day with at least one session in which
+ * the user completed at least one task. The current streak only counts
+ * if the most recent active day was today or yesterday (so a streak
+ * doesn't stay "alive" forever once the user stops showing up).
+ */
+function calculateStreaks(sessions: SessionLog[]): {
+  currentStreak: number;
+  longestStreak: number;
+} {
+  const activeDays = new Set<string>();
+  sessions.forEach((s) => {
+    if ((s.tasksCompleted || 0) > 0 && s.startedAt) {
+      const d = new Date(s.startedAt);
+      activeDays.add(`${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`);
+    }
+  });
+
+  if (activeDays.size === 0) {
+    return { currentStreak: 0, longestStreak: 0 };
+  }
+
+  const ONE_DAY = 24 * 60 * 60 * 1000;
+  const dayTimestamps = Array.from(activeDays)
+    .map((key) => {
+      const [y, m, d] = key.split('-').map(Number);
+      return new Date(y, m, d).getTime();
+    })
+    .sort((a, b) => a - b);
+
+  // Longest streak: scan forward through sorted unique active days.
+  let longestStreak = 1;
+  let runningStreak = 1;
+  for (let i = 1; i < dayTimestamps.length; i++) {
+    const gapDays = Math.round((dayTimestamps[i] - dayTimestamps[i - 1]) / ONE_DAY);
+    runningStreak = gapDays === 1 ? runningStreak + 1 : 1;
+    longestStreak = Math.max(longestStreak, runningStreak);
+  }
+
+  // Current streak: only counts if still "alive" (active today or yesterday),
+  // then walk backwards counting consecutive days.
+  const today = new Date();
+  const todayTs = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
+  const mostRecentActiveTs = dayTimestamps[dayTimestamps.length - 1];
+  const daysSinceLastActive = Math.round((todayTs - mostRecentActiveTs) / ONE_DAY);
+
+  let currentStreak = 0;
+  if (daysSinceLastActive <= 1) {
+    currentStreak = 1;
+    for (let i = dayTimestamps.length - 1; i > 0; i--) {
+      const gapDays = Math.round((dayTimestamps[i] - dayTimestamps[i - 1]) / ONE_DAY);
+      if (gapDays === 1) {
+        currentStreak++;
+      } else {
+        break;
+      }
+    }
+  }
+
+  return { currentStreak, longestStreak };
 }
 
 /**

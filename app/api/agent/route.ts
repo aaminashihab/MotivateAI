@@ -111,7 +111,12 @@ export async function POST(req: Request) {
           const toolsResponse = await client.listTools();
           const tools = toolsResponse.tools;
           allMcpTools = [...allMcpTools, ...tools];
-          
+
+          // Register the connected client itself so it can actually be
+          // invoked later in the agent loop (previously only tool names
+          // were tracked, so every tool call fell through to "not connected").
+          mcpClients[clientId] = client;
+
           tools.forEach((t: MCPTool) => {
              toolRegistry[t.name.replace(/-/g, '_')] = clientId;
           });
