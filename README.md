@@ -1,7 +1,7 @@
 # MotivateAI 🔥
 ### Your Agentic AI Learning Coach for Building Study Consistency
 
-> An agentic AI learning coach that analyzes your last 30 sessions and uses a multi-turn Gemini tool-calling loop to generate personalized study plans — triggered on demand. .
+> An agentic AI learning coach that builds a behavioral profile from your recent sessions to generate personalized study plans, grounds coding goals in real GitHub content via a multi-turn Gemini tool-calling loop, and runs a 30-session optimization engine that tunes your preferences over time — all triggered on demand.
 
 [![Live Demo](https://img.shields.io/badge/Live-Demo-purple?style=for-the-badge)](https://motivate-ai-k1at-ihl7u23se-amina-s-s-projects.vercel.app/)
 [![GitHub](https://img.shields.io/badge/GitHub-aaminashihab/MotivateAI-black?style=for-the-badge&logo=github)](https://github.com/aaminashihab/MotivateAI)
@@ -62,7 +62,7 @@ flowchart TD
 ## ✨ Core Features
 
 ### 1. Autonomous Session Generation
-Submit any learning goal (e.g. "Learn Python encapsulation"). Gemini 2.5 reviews your profile history, calculates your momentum, and generates an optimized curriculum split into bite-sized tasks. It automatically fetches a relevant YouTube tutorial and places a personalized Coach Note guiding you to the most relevant timestamp.
+Submit any learning goal (e.g. "Learn Python encapsulation"). Gemini 2.5 reviews your recent session history, calculates your momentum, and generates an optimized curriculum split into bite-sized tasks. It automatically fetches a relevant YouTube tutorial and places a personalized Coach Note guiding you to the most relevant timestamp.
 
 ### 2. Empathic AI Coach Check-in
 Every dashboard load triggers a Gemini-generated personalized message referencing your actual history — streak status, last concept completed, or a non-guilt-tripping nudge if you've been away.
@@ -80,6 +80,9 @@ Full-scale visual reporting powered by **Recharts**:
 ### 5. Optimization Engine ⭐
 The standout feature: click **Run Optimization Engine** to trigger a Gemini analysis over your last 30 sessions. The model reviews your break skip rates and performance drop-offs, generates before/after comparisons with clinical reasoning, and automatically applies new settings to your profile.
 
+### 6. Agentic Tool-Calling Loop
+For coding-related goals, a separate multi-turn Gemini agent connects to GitHub and MongoDB via the Model Context Protocol (MCP) to search real repositories and ground the generated session plan in actual code rather than a generic curriculum.
+
 ---
 
 ## 🛠️ Technology Stack
@@ -90,6 +93,7 @@ The standout feature: click **Run Optimization Engine** to trigger a Gemini anal
 | Styling | Tailwind CSS — Dark Glassmorphism UI |
 | Database | MongoDB (session logs, preferences, optimization history) |
 | AI Model | Google Gemini 2.5 Flash via `@google/generative-ai` SDK |
+| Agent Tooling | Model Context Protocol (MCP) — GitHub & MongoDB servers |
 | Integrations | YouTube Data API v3 |
 | Deployment | Vercel |
 | Containerization | Docker (multi-stage optimized build) |
