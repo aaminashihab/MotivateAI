@@ -1,4 +1,3 @@
-
 # MotivateAI 🔥
 ### Your Agentic AI Learning Coach for Building Study Consistency
 
@@ -6,7 +5,7 @@
 
 [![Live Demo](https://img.shields.io/badge/Live-Demo-purple?style=for-the-badge)](https://motivate-ai-k1at-ihl7u23se-amina-s-s-projects.vercel.app/)
 [![GitHub](https://img.shields.io/badge/GitHub-aaminashihab/MotivateAI-black?style=for-the-badge&logo=github)](https://github.com/aaminashihab/MotivateAI)
-[![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)](https://nextjs.org)
+[![Next.js](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js)](https://nextjs.org)
 [![Gemini](https://img.shields.io/badge/Gemini-API-blue?style=for-the-badge&logo=google)](https://ai.google.dev)
 [![Demo Video](https://img.shields.io/badge/Demo-Video-red?style=for-the-badge&logo=youtube)](https://youtu.be/hqcipLO0GUY)
 
@@ -87,7 +86,7 @@ The standout feature: click **Run Optimization Engine** to trigger a Gemini anal
 
 | Layer | Technology |
 |---|---|
-| Frontend | Next.js 15 (App Router), React 19, TypeScript |
+| Frontend | Next.js 16 (App Router), React 19, TypeScript |
 | Styling | Tailwind CSS — Dark Glassmorphism UI |
 | Database | MongoDB (session logs, preferences, optimization history) |
 | AI Model | Google Gemini 2.5 Flash via `@google/generative-ai` SDK |
