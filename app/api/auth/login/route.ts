@@ -44,12 +44,11 @@ export async function POST(req: NextRequest) {
     }
     
     // Create JWT
-    const secret = new TextEncoder().encode(JWT_SECRET);
     const token = await new SignJWT({ userId: user._id.toString(), email: user.email })
       .setProtectedHeader({ alg: 'HS256' })
       .setIssuedAt()
       .setExpirationTime('7d') // Short-lived token
-      .sign(secret);
+      .sign(JWT_SECRET);
       
     const response = NextResponse.json({ success: true }, { status: 200 });
     
