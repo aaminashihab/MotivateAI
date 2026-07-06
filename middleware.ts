@@ -23,7 +23,10 @@ const authPaths = [
 
 export async function middleware(request: NextRequest) {
   if (!JWT_SECRET_ENV && process.env.NODE_ENV === 'production') {
-    throw new Error('FATAL: JWT_SECRET environment variable is missing in production!');
+    return NextResponse.json(
+      { error: 'FATAL: JWT_SECRET environment variable is missing in production! Please configure it in your Vercel project settings.' },
+      { status: 500 }
+    );
   }
 
   const { pathname } = request.nextUrl;
