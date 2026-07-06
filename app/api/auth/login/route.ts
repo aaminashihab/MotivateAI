@@ -9,7 +9,11 @@ const loginSchema = z.object({
   password: z.string().min(1)
 });
 
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret_for_development_only';
+const JWT_SECRET_ENV = process.env.JWT_SECRET;
+if (!JWT_SECRET_ENV && process.env.NODE_ENV === 'production') {
+  throw new Error('FATAL: JWT_SECRET environment variable is missing in production!');
+}
+const JWT_SECRET = new TextEncoder().encode(JWT_SECRET_ENV || 'fallback_secret_for_development_only');
 
 export async function POST(req: NextRequest) {
   try {

@@ -6,9 +6,19 @@ export async function GET(
   { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
-    const { userId } = await params;
+    let { userId } = await params;
+    const authenticatedUserId = request.headers.get('x-user-id');
+
+    if (userId === 'me' && authenticatedUserId) {
+      userId = authenticatedUserId;
+    }
+
     if (!userId || typeof userId !== 'string') {
       return NextResponse.json({ error: 'Invalid User ID' }, { status: 400 });
+    }
+
+    if (authenticatedUserId !== userId) {
+      return NextResponse.json({ error: 'Unauthorized: Cannot view another user preferences' }, { status: 403 });
     }
     const client = await clientPromise;
     const db = client.db('motivateai');
@@ -31,11 +41,20 @@ export async function PUT(
   { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
-    const { userId } = await params;
+    let { userId } = await params;
+    const authenticatedUserId = request.headers.get('x-user-id');
     const preferences = await request.json();
+
+    if (userId === 'me' && authenticatedUserId) {
+      userId = authenticatedUserId;
+    }
 
     if (!userId || typeof userId !== 'string') {
       return NextResponse.json({ error: 'Invalid User ID' }, { status: 400 });
+    }
+
+    if (authenticatedUserId !== userId) {
+      return NextResponse.json({ error: 'Unauthorized: Cannot modify another user preferences' }, { status: 403 });
     }
 
     if (!preferences || typeof preferences !== 'object' || Array.isArray(preferences)) {

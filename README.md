@@ -1,170 +1,31 @@
-# MotivateAI 🔥
-### Your Agentic AI Learning Coach for Building Study Consistency
+# MotivateAI
 
-> An agentic AI learning coach that builds a behavioral profile from your recent sessions to generate personalized study plans, grounds coding goals in real GitHub content via a multi-turn Gemini tool-calling loop, and runs a 30-session optimization engine that tunes your preferences over time — all triggered on demand.
+MotivateAI is an intelligent learning companion designed to combat the 95% dropout rate in self-directed learning. It uses AI, behavioral analytics, and personalized task scheduling to help you stay consistent.
 
-[![Live Demo](https://img.shields.io/badge/Live-Demo-purple?style=for-the-badge)](https://motivate-ai-k1at-ihl7u23se-amina-s-s-projects.vercel.app/)
-[![GitHub](https://img.shields.io/badge/GitHub-aaminashihab/MotivateAI-black?style=for-the-badge&logo=github)](https://github.com/aaminashihab/MotivateAI)
-[![Next.js](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js)](https://nextjs.org)
-[![Gemini](https://img.shields.io/badge/Gemini-API-blue?style=for-the-badge&logo=google)](https://ai.google.dev)
-[![Demo Video](https://img.shields.io/badge/Demo-Video-red?style=for-the-badge&logo=youtube)](https://youtu.be/hqcipLO0GUY)
+## Features
+- **Adaptive Session Generation**: Break large goals down into actionable, 10-30 minute micro-tasks powered by Gemini 2.5 Flash.
+- **Behavioral Analytics**: Tracks your completion rate, break patterns, and engagement to adapt future sessions to your true working style.
+- **YouTube Integration**: Automatically suggests short, targeted tutorials for specific tasks.
+- **Secure Authentication**: JWT-based authentication with Edge Middleware for IDOR protection.
 
----
+## Tech Stack
+- **Framework:** Next.js 16 (App Router)
+- **Language:** TypeScript
+- **Database:** MongoDB
+- **Authentication:** `jose` (JWT), `bcryptjs`
+- **AI Core:** `@google/generative-ai` (Gemini 2.5 Flash)
 
-## 📺 Demo
+## Setup
+1. Clone the repository
+2. `npm install`
+3. Set up your `.env.local` based on `.env.example`
+4. `npm run dev`
 
-> 📹 **[Watch the 4-minute demo on YouTube →](https://youtu.be/hqcipLO0GUY)**
+## Known Limitations & Security Notes
+As this is a portfolio project designed to demonstrate core feature velocity and basic security competence, there are a few architectural tradeoffs made for the sake of simplicity:
 
----
+- **In-Memory Rate Limiting**: The `/api/youtube` and AI routes use a simple in-memory `Map` to rate-limit requests. In a real-world serverless deployment (e.g., Vercel), this state resets per lambda cold-start and does not share across instances. For production scale, this would be swapped out for a centralized store like **Upstash Redis**.
+- **MCP Prompt Injection Defenses**: The agent routes (`/api/agent` and adaptive session generators) use basic regex filtering (e.g., stripping "ignore previous instructions") to mitigate prompt injection. A production-grade defense would require output-side validation, LLM-as-a-judge classifiers, and strictly scoped read-only database roles, rather than just input sanitization.
+- **Password Reset Flow**: The password reset endpoints currently log the reset link to the console for demonstration purposes, and store the reset token in plaintext. In a live environment, this would integrate with an email provider (like Resend or SendGrid) and mathematically hash the tokens before storing them in MongoDB.
 
-## 💡 The Problem
-
-Self-directed online learning is fundamentally broken. **Over 95% of self-learners drop out of online courses.**
-
-| Existing Solution | What It Lacks |
-|---|---|
-| Content platforms (YouTube, Udemy) | Zero accountability — once momentum drops, users disappear |
-| Habit trackers (Streaks, Habitica) | Gamify completion but don't adapt to how you actually learn |
-| Human tutors | Expensive, unavailable 24/7, impossible to scale |
-| Traditional courses | One-size-fits-all — doesn't adapt to your pace or struggle |
-
----
-
-## 🧠 The Solution
-
-MotivateAI acts as an **always-on cognitive learning companion**. Using Google Gemini 2.5, it analyzes your real-time learning signals — historical task completion rates, average focus durations, optimal break intervals, and focus drop-off thresholds — to dynamically schedule every micro-session specifically to your focus habits.
-
----
-
-## 🏗️ System Architecture
-
-```mermaid
-flowchart TD
-    A([🎯 User Goal]) -->|1. Submit goal| B[Adaptive Goal Input]
-    B -->|2. Fetch behavioral profile| C[(MongoDB\nSession Store)]
-    C -->|3. Past sessions & preferences| D[Gemini 2.5\nSession Planner]
-    D -->|4. Generate JSON session plan| E[YouTube Search\nSourcing]
-    E -->|5. Sourced tutorial + coach note| F[Active Session\nRunner]
-    F -->|6. Real-time timers & signals| G[Behavioral Signal\nAnalyzer]
-    G -->|7. Compute habits & optimizations| C
-
-    style A fill:#7F77DD,stroke:#534AB7,color:#fff
-    style D fill:#3C3489,stroke:#534AB7,color:#fff
-    style C fill:#444441,stroke:#888780,color:#fff
-    style G fill:#3C3489,stroke:#534AB7,color:#fff
-    style B fill:#2C2C2A,stroke:#5F5E5A,color:#ccc
-    style E fill:#2C2C2A,stroke:#5F5E5A,color:#ccc
-    style F fill:#2C2C2A,stroke:#5F5E5A,color:#ccc
-```
-
----
-
-## ✨ Core Features
-
-### 1. Autonomous Session Generation
-Submit any learning goal (e.g. "Learn Python encapsulation"). Gemini 2.5 reviews your recent session history, calculates your momentum, and generates an optimized curriculum split into bite-sized tasks. It automatically fetches a relevant YouTube tutorial and places a personalized Coach Note guiding you to the most relevant timestamp.
-
-### 2. Empathic AI Coach Check-in
-Every dashboard load triggers a Gemini-generated personalized message referencing your actual history — streak status, last concept completed, or a non-guilt-tripping nudge if you've been away.
-
-### 3. Active Session Runner & Break Manager
-Each task has a circular SVG countdown timer. Between sessions, a break timer triggers with a motivational quote and customized activities (hydration, breathing, stretches) based on your fatigue patterns.
-
-### 4. Interactive Behavioral Analytics
-Full-scale visual reporting powered by **Recharts**:
-- **Consistency Trend** — 7-day line chart of task completion rates vs. weighted engagement score
-- **Peak Performance Times** — bar chart grouping performance scores by time of day
-- **Task Difficulty Breakdown** — donut chart showing comfort across Easy / Medium / Hard tasks
-- **Weekly Aggregations** — total study hours, active sessions, and streak count
-
-### 5. Optimization Engine ⭐
-The standout feature: click **Run Optimization Engine** to trigger a Gemini analysis over your last 30 sessions. The model reviews your break skip rates and performance drop-offs, generates before/after comparisons with clinical reasoning, and automatically applies new settings to your profile.
-
-### 6. Agentic Tool-Calling Loop
-For coding-related goals, a separate multi-turn Gemini agent connects to GitHub and MongoDB via the Model Context Protocol (MCP) to search real repositories and ground the generated session plan in actual code rather than a generic curriculum.
-
----
-
-## 🛠️ Technology Stack
-
-| Layer | Technology |
-|---|---|
-| Frontend | Next.js 16 (App Router), React 19, TypeScript |
-| Styling | Tailwind CSS — Dark Glassmorphism UI |
-| Database | MongoDB (session logs, preferences, optimization history) |
-| AI Model | Google Gemini 2.5 Flash via `@google/generative-ai` SDK |
-| Agent Tooling | Model Context Protocol (MCP) — GitHub & MongoDB servers |
-| Integrations | YouTube Data API v3 |
-| Deployment | Vercel |
-| Containerization | Docker (multi-stage optimized build) |
-
----
-
-## 🔒 Security Implementation
-
-| Measure | Implementation |
-|---|---|
-| Prompt sanitization | User goals truncated to 100 chars, sanitized against injection patterns |
-| System isolation | Instructions partitioned inside Gemini's `systemInstruction` parameter |
-| Schema enforcement | Every API call enforces `responseSchema` for guaranteed Type Safety |
-
----
-
-## 🚀 What I'd Build Next
-
-- Google OAuth login for persistent cross-device profiles
-- Mobile app (React Native) for on-the-go session tracking
-- Offline mode with local session caching
-- Peer accountability groups — study with friends, see each other's streaks
-
----
-
-## ⚡ Quick Start
-
-### 1. Clone the repository
-```bash
-git clone https://github.com/aaminashihab/MotivateAI.git
-cd MotivateAI
-```
-
-### 2. Install dependencies
-```bash
-npm install
-```
-
-### 3. Configure environment variables
-Create a `.env.local` file:
-```env
-# Google AI Studio — aistudio.google.com
-GEMINI_API_KEY=your_gemini_api_key_here
-
-# Google Cloud Console — console.cloud.google.com
-YOUTUBE_API_KEY=your_youtube_api_key_here
-
-# MongoDB Atlas — mongodb.com
-MONGODB_URI=your_mongodb_connection_string_here
-```
-
-### 4. Run locally
-```bash
-npm run dev
-# Open http://localhost:3000
-```
-
----
-
-## ☁️ Cloud Deployment (Vercel)
-
-The application is deployed on **Vercel** with automatic continuous deployment (CD) on every push to `main`.
-
-### Setup Environment Variables on Vercel
-Add the following variables in your **Vercel Project Settings -> Environment Variables**:
-* `GEMINI_API_KEY`
-* `YOUTUBE_API_KEY`
-* `MONGODB_URI`
-
----
-
-## 📄 License
-
-MIT — see [LICENSE](LICENSE)
+*(Note: JWT secrets are strictly enforced; the app is configured to fail and crash on startup if `JWT_SECRET` is missing in production, avoiding dangerous fallback defaults).*
