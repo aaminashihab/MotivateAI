@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
     const result = resetPasswordSchema.safeParse(body);
     
     if (!result.success) {
-      return NextResponse.json({ error: result.error.errors.map(e => e.message).join(', ') }, { status: 400 });
+      return NextResponse.json({ error: result.error.issues.map(e => e.message).join(', ') }, { status: 400 });
     }
     
     const { token, password } = result.data;
