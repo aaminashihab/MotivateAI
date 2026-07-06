@@ -21,7 +21,7 @@ const authPaths = [
   '/reset-password'
 ];
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   if (!JWT_SECRET_ENV && process.env.NODE_ENV === 'production') {
     return NextResponse.json(
       { error: 'FATAL: JWT_SECRET environment variable is missing in production! Please configure it in your Vercel project settings.' },
