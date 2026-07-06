@@ -1,31 +1,88 @@
-# MotivateAI
+<div align="center">
+  <h1>🚀 MotivateAI</h1>
+  <p><strong>Your Autonomous Consistency Agent</strong></p>
+  <p>An intelligent learning companion designed to combat the 95% dropout rate in self-directed learning by adapting to your behavioral patterns in real-time.</p>
+</div>
 
-MotivateAI is an intelligent learning companion designed to combat the 95% dropout rate in self-directed learning. It uses AI, behavioral analytics, and personalized task scheduling to help you stay consistent.
+---
 
-## Features
-- **Adaptive Session Generation**: Break large goals down into actionable, 10-30 minute micro-tasks powered by Gemini 2.5 Flash.
-- **Behavioral Analytics**: Tracks your completion rate, break patterns, and engagement to adapt future sessions to your true working style.
-- **YouTube Integration**: Automatically suggests short, targeted tutorials for specific tasks.
-- **Secure Authentication**: JWT-based authentication with Edge Middleware for IDOR protection.
+## 📖 Overview
 
-## Tech Stack
-- **Framework:** Next.js 16 (App Router)
+Self-directed learning is incredibly difficult. Most learners abandon their goals because they try to follow rigid schedules that don't match their actual working style. 
+
+**MotivateAI** flips this model. Instead of forcing you to adapt to a schedule, it uses **Gemini 2.5 Flash** and **Behavioral Analytics** to adapt the schedule to *you*. It breaks monumental goals into 10-30 minute micro-tasks, monitors your completion rates and break patterns, and dynamically generates future sessions tailored to when and how you learn best.
+
+## ✨ Core Features
+
+- 🧠 **Adaptive AI Session Generation:** Uses Gemini 2.5 Flash to deconstruct massive learning goals into highly specific, actionable micro-tasks.
+- 📊 **Behavioral Analytics Engine:** Tracks your focus duration, preferred break times, and drop-off signals to optimize your learning schedule automatically.
+- 🎥 **Targeted YouTube Integration:** Automatically sources short, hyper-relevant YouTube tutorials for your current micro-task to prevent context switching.
+- 🔒 **Secure Authentication & Identity:** Built with custom JWT-based authentication and Next.js Edge Proxy for strict access control and IDOR prevention.
+- 🎨 **Modern, Responsive UI:** A sleek, glassmorphic dark-mode interface built with Tailwind CSS.
+
+## 🛠️ Technology Stack
+
+- **Frontend & Backend Framework:** Next.js 16 (App Router)
 - **Language:** TypeScript
-- **Database:** MongoDB
-- **Authentication:** `jose` (JWT), `bcryptjs`
-- **AI Core:** `@google/generative-ai` (Gemini 2.5 Flash)
+- **Database:** MongoDB (Atlas)
+- **AI Integration:** `@google/generative-ai` (Gemini 2.5 Flash)
+- **Authentication:** `jose` (JWT Cryptography), `bcryptjs` (Password Hashing)
+- **Styling:** Tailwind CSS
 
-## Setup
-1. Clone the repository
-2. `npm install`
-3. Set up your `.env.local` based on `.env.example`
-4. `npm run dev`
+---
 
-## Known Limitations & Security Notes
-As this is a portfolio project designed to demonstrate core feature velocity and basic security competence, there are a few architectural tradeoffs made for the sake of simplicity:
+## 🚀 Getting Started (Local Development)
 
-- **In-Memory Rate Limiting**: The `/api/youtube` and AI routes use a simple in-memory `Map` to rate-limit requests. In a real-world serverless deployment (e.g., Vercel), this state resets per lambda cold-start and does not share across instances. For production scale, this would be swapped out for a centralized store like **Upstash Redis**.
-- **MCP Prompt Injection Defenses**: The agent routes (`/api/agent` and adaptive session generators) use basic regex filtering (e.g., stripping "ignore previous instructions") to mitigate prompt injection. A production-grade defense would require output-side validation, LLM-as-a-judge classifiers, and strictly scoped read-only database roles, rather than just input sanitization.
-- **Password Reset Flow**: The password reset endpoints currently log the reset link to the console for demonstration purposes, and store the reset token in plaintext. In a live environment, this would integrate with an email provider (like Resend or SendGrid) and mathematically hash the tokens before storing them in MongoDB.
+### 1. Prerequisites
+- Node.js 18+ installed
+- A MongoDB Atlas cluster (free tier works perfectly)
+- A Google Gemini API Key
 
-*(Note: JWT secrets are strictly enforced; the app is configured to fail and crash on startup if `JWT_SECRET` is missing in production, avoiding dangerous fallback defaults).*
+### 2. Installation
+Clone the repository and install dependencies:
+```bash
+git clone https://github.com/aaminashihab/MotivateAI.git
+cd MotivateAI
+npm install
+```
+
+### 3. Environment Variables
+Create a `.env.local` file in the root directory and add the following keys:
+```env
+# MongoDB Connection String (must allow 0.0.0.0/0 in Network Access)
+MONGODB_URI=mongodb+srv://<username>:<password>@cluster0...
+
+# Cryptographically secure random string for signing JWTs
+# Run `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"` to generate one
+JWT_SECRET=your_super_secret_jwt_key_here
+
+# Your Google Gemini API Key
+GEMINI_API_KEY=your_gemini_api_key_here
+
+# YouTube Data API v3 Key (Optional: for fetching video tutorials)
+YOUTUBE_API_KEY=your_youtube_api_key_here
+```
+
+### 4. Run the Development Server
+```bash
+npm run dev
+```
+Open [http://localhost:3000](http://localhost:3000) in your browser to see the application.
+
+---
+
+## 🔒 Security Architecture & Known Limitations
+
+As a portfolio project designed to demonstrate core product velocity alongside engineering maturity, several explicit architectural tradeoffs were made:
+
+- **Edge-Level Authorization:** The application utilizes a Next.js `proxy.ts` (Edge Middleware) to verify JWT signatures on all protected routes. The application is strictly configured to throw a fatal `500 Internal Server Error` if `JWT_SECRET` is missing in production, preventing dangerous unauthenticated fallbacks.
+- **IDOR Mitigations:** Client-provided `userId` parameters in URLs (e.g., `/api/users/[userId]/preferences`) are explicitly ignored for authorization. Access control is verified strictly against the server-derived `x-user-id` header injected by the JWT middleware.
+- **In-Memory Rate Limiting:** The AI and YouTube API routes currently utilize an in-memory `Map` for rate limiting. In a Vercel serverless environment, this state does not persist across cold starts. A production deployment would swap this for a centralized Redis store (e.g., Upstash).
+- **Prompt Injection:** Agent endpoints employ regex-based filtering to strip basic prompt injection attacks (e.g., "ignore previous instructions"). Enterprise-grade deployment would require output-side validation and strictly scoped, read-only database roles.
+- **Password Reset Flow:** For demonstration purposes, reset links are printed to the console rather than dispatched via an email provider (like Resend).
+
+---
+
+<div align="center">
+  <p>Built with ❤️ for learners everywhere.</p>
+</div>
