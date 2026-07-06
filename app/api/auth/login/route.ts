@@ -10,12 +10,13 @@ const loginSchema = z.object({
 });
 
 const JWT_SECRET_ENV = process.env.JWT_SECRET;
-if (!JWT_SECRET_ENV && process.env.NODE_ENV === 'production') {
-  throw new Error('FATAL: JWT_SECRET environment variable is missing in production!');
-}
 const JWT_SECRET = new TextEncoder().encode(JWT_SECRET_ENV || 'fallback_secret_for_development_only');
 
 export async function POST(req: NextRequest) {
+  if (!JWT_SECRET_ENV && process.env.NODE_ENV === 'production') {
+    throw new Error('FATAL: JWT_SECRET environment variable is missing in production!');
+  }
+  
   try {
     const body = await req.json();
     const result = loginSchema.safeParse(body);
