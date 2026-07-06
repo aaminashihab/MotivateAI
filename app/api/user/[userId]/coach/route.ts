@@ -3,6 +3,7 @@ import clientPromise from '@/lib/mongodb';
 import { analyzeUserBehavior } from '@/lib/services/behaviorAnalyzer';
 import { SessionLog } from '@/lib/types/sessionLog';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { ObjectId } from 'mongodb';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || process.env.GOOGLE_GEMINI_API_KEY || '');
 
@@ -40,7 +41,7 @@ export async function GET(
         .toArray() as any;
 
       // Calculate streak from users collection if available (fallback logic)
-      const userDoc = await db.collection('users').findOne({ _id: userId as any });
+      const userDoc = await db.collection('users').findOne({ _id: new ObjectId(userId) });
       if (userDoc && userDoc.streak) {
         streak = userDoc.streak;
       }

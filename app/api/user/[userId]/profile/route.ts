@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import clientPromise from '@/lib/mongodb';
 import { analyzeUserBehavior } from '@/lib/services/behaviorAnalyzer';
 import { SessionLog } from '@/lib/types/sessionLog';
+import { ObjectId } from 'mongodb';
 
 export async function GET(
   request: NextRequest,
@@ -176,7 +177,7 @@ export async function GET(
     try {
       const client = await clientPromise;
       const db = client.db('motivateai');
-      const userDoc = await db.collection('users').findOne({ _id: userId as any });
+      const userDoc = await db.collection('users').findOne({ _id: new ObjectId(userId) });
       if (userDoc) {
         if (userDoc.streak) profile.weeklyStats.streakDays = userDoc.streak;
         if (userDoc.optimizations) profile.optimizations = userDoc.optimizations;

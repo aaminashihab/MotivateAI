@@ -1,5 +1,6 @@
 import { NextResponse, NextRequest } from 'next/server';
 import clientPromise from '@/lib/mongodb';
+import { ObjectId } from 'mongodb';
 
 export async function GET(
   request: NextRequest,
@@ -23,7 +24,7 @@ export async function GET(
     const client = await clientPromise;
     const db = client.db('motivateai');
     
-    const user = await db.collection<any>('users').findOne({ _id: userId });
+    const user = await db.collection<any>('users').findOne({ _id: new ObjectId(userId) });
     
     if (!user || !user.preferences) {
       return NextResponse.json({}, { status: 404 });
@@ -81,10 +82,10 @@ export async function PUT(
     const db = client.db('motivateai');
 
     await db.collection<any>('users').updateOne(
-      { _id: userId },
+      { _id: new ObjectId(userId) },
       { 
         $set: { 
-          _id: userId,
+          _id: new ObjectId(userId),
           preferences: sanitizedPreferences, 
           updatedAt: new Date() 
         } 

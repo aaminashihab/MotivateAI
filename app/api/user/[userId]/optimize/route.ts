@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import clientPromise from '@/lib/mongodb';
 import { SessionLog } from '@/lib/types/sessionLog';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { ObjectId } from 'mongodb';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || process.env.GOOGLE_GEMINI_API_KEY || '');
 
@@ -28,7 +29,7 @@ export async function POST(
     const client = await clientPromise;
     const db = client.db('motivateai');
     
-    const userDoc = await db.collection('users').findOne({ _id: userId as any });
+    const userDoc = await db.collection('users').findOne({ _id: new ObjectId(userId) });
     const preferences = userDoc?.preferences || {
       breakLength: 5,
       preferredSessionTime: 'morning',
@@ -131,7 +132,7 @@ export async function POST(
 
     // Save to DB
     await db.collection('users').updateOne(
-      { _id: userId as any },
+      { _id: new ObjectId(userId) },
       { 
         $set: { 
           preferences: updatedPreferences,

@@ -88,8 +88,11 @@ export async function POST(request: NextRequest) {
           try {
             // We do a non-blocking background fetch to the optimization route
             const baseUrl = request.headers.get('origin') || `http://${request.headers.get('host')}`;
+            const authToken = request.cookies.get('auth_token')?.value;
+            
             fetch(`${baseUrl}/api/user/${userId}/optimize`, {
-              method: 'POST'
+              method: 'POST',
+              headers: authToken ? { 'Cookie': `auth_token=${authToken}` } : undefined
             }).catch(e => console.warn('Background optimization failed:', e));
           } catch (e) {
             console.warn('Failed to trigger background optimization:', e);
