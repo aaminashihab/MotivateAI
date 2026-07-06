@@ -2,25 +2,37 @@ import { NextRequest, NextResponse } from 'next/server';
 import clientPromise from '@/lib/mongodb';
 import { generateAdaptiveSession } from '@/lib/services/adaptiveSessionGenerator';
 import { SessionLog } from '@/lib/types/sessionLog';
+import { z } from 'zod';
+import { rateLimit } from '@/lib/rateLimit';
+import { ObjectId } from 'mongodb';
+
+const generateSchema = z.object({
+  goal: z.string().min(1).max(200),
+});
 
 export async function POST(request: NextRequest) {
   try {
+    const rateLimitResult = rateLimit(request);
+    if (!rateLimitResult.success) {
+      return NextResponse.json({ error: 'Too Many Requests' }, { status: 429 });
+    }
+
+    const userId = request.headers.get('x-user-id');
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await request.json();
-    const { goal, userId } = body;
+    const result = generateSchema.safeParse(body);
 
-    if (!goal || !userId) {
+    if (!result.success) {
       return NextResponse.json(
-        { error: 'Missing required fields: goal, userId' },
+        { error: 'Invalid goal parameter' },
         { status: 400 }
       );
     }
-
-    if (typeof goal !== 'string' || typeof userId !== 'string') {
-      return NextResponse.json(
-        { error: 'Invalid parameters: goal and userId must be strings' },
-        { status: 400 }
-      );
-    }
+    
+    const { goal } = result.data;
 
     let userSessions: SessionLog[] = [];
     let sessionCollection: any = null;
@@ -37,7 +49,7 @@ export async function POST(request: NextRequest) {
         .limit(10)
         .toArray();
         
-      const userDoc = await db.collection<any>('users').findOne({ _id: userId });
+      const userDoc = await db.collection<any>('users').findOne({ _id: new ObjectId(userId) });
       if (userDoc && userDoc.preferences) {
         userPreferences = userDoc.preferences;
       }

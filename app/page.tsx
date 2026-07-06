@@ -46,6 +46,7 @@ export default function Home() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [videoData, setVideoData] = useState<VideoData | null>(null);
   const [streak, setStreak] = useState(0);
+  const [streakData, setStreakData] = useState<any>(null);
   const [userId, setUserId] = useState<string>('');
   const [sessionId, setSessionId] = useState<string>('');
   const [skippedCount, setSkippedCount] = useState(0);
@@ -57,14 +58,35 @@ export default function Home() {
     hasInitialized.current = true;
 
     if (typeof window !== 'undefined') {
-      let currentUserId = localStorage.getItem('motivateai_user_id');
-      if (!currentUserId) {
-        currentUserId = `user_${Math.random().toString(36).substring(2, 15)}`;
-        localStorage.setItem('motivateai_user_id', currentUserId);
-        window.location.href = '/onboarding';
-        return;
-      }
-      setUserId(currentUserId);
+      // Fetch profile using the 'me' alias which reads from the secure JWT cookie
+      fetch(`/api/user/me/profile`)
+        .then(res => {
+          if (!res.ok) throw new Error('Not authenticated');
+          return res.json();
+        })
+        .then(data => {
+          if (data && data.userId) {
+            setUserId(data.userId);
+          }
+          if (data && typeof data.currentStreak === 'number') {
+            const daysMap: Record<string, number> = { 'Mon': 0, 'Tue': 1, 'Wed': 2, 'Thu': 3, 'Fri': 4, 'Sat': 5, 'Sun': 6 };
+            const thisWeek = [false, false, false, false, false, false, false];
+            if (data.consistencyTrend) {
+              data.consistencyTrend.forEach((t: any) => {
+                if (daysMap[t.date] !== undefined && t.completionRate > 0) {
+                  thisWeek[daysMap[t.date]] = true;
+                }
+              });
+            }
+            setStreakData({
+              currentStreak: data.currentStreak,
+              longestStreak: data.longestStreak,
+              lastActiveDate: new Date(data.lastSessionDate || Date.now()),
+              thisWeek
+            });
+          }
+        })
+        .catch(err => console.error("Failed to fetch profile for streak", err));
 
       const savedSession = localStorage.getItem('motivateai_session');
       if (savedSession) {
@@ -271,25 +293,34 @@ export default function Home() {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-[1536px]">
-      <div className="flex flex-col md:flex-row justify-between items-center md:items-start flex-wrap gap-4 mb-8">
-        <div className="text-center md:text-left w-full md:w-auto">
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-fuchsia-400 mb-2 animate-slide-down">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 bg-slate-900/50 p-6 rounded-3xl border border-slate-800/50">
+        <div>
+          <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-500 mb-2 tracking-tight">
             MotivateAI
           </h1>
-          <p className="text-slate-400 text-base sm:text-lg md:text-xl animate-fade-in opacity-0" style={{ animationDelay: '0.3s', animationFillMode: 'forwards' }}>
+          <p className="text-slate-400 font-medium">
             Your Autonomous Agent for Building Consistency
           </p>
         </div>
+        <button 
+          onClick={async () => {
+            await fetch('/api/auth/logout', { method: 'POST' });
+            window.location.href = '/login';
+          }}
+          className="mt-4 md:mt-0 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-medium transition-colors border border-slate-700"
+        >
+          Logout
+        </button>
       </div>
 
       {userId && <CoachMessage userId={userId} />}
 
       <div className="mb-8">
-        <StreakWidget streak={{
-          currentStreak: streak || 3, // Fallback to 3 for demo if 0
-          longestStreak: Math.max(streak || 3, 12),
+        <StreakWidget streak={streakData || {
+          currentStreak: streak || 0,
+          longestStreak: streak || 0,
           lastActiveDate: new Date(),
-          thisWeek: [true, true, true, false, false, false, false]
+          thisWeek: [false, false, false, false, false, false, false]
         }} />
       </div>
 

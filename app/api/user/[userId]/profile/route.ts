@@ -8,10 +8,19 @@ export async function GET(
   { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
-    const { userId } = await params;
+    let { userId } = await params;
+    const authenticatedUserId = request.headers.get('x-user-id');
+    
+    if (userId === 'me' && authenticatedUserId) {
+      userId = authenticatedUserId;
+    }
 
     if (!userId || typeof userId !== 'string') {
       return NextResponse.json({ error: 'User ID must be a string' }, { status: 400 });
+    }
+
+    if (authenticatedUserId !== userId) {
+      return NextResponse.json({ error: 'Unauthorized: Cannot view another user profile' }, { status: 403 });
     }
 
     let sessions: SessionLog[] = [];

@@ -1,7 +1,13 @@
 import { NextResponse } from 'next/server';
+import { rateLimit } from '@/lib/rateLimit';
 
 export async function GET(req: Request) {
   try {
+    const rateLimitResult = rateLimit(req as any);
+    if (!rateLimitResult.success) {
+      return NextResponse.json({ error: 'Too Many Requests' }, { status: 429 });
+    }
+
     const { searchParams } = new URL(req.url);
     const query = searchParams.get('q');
 

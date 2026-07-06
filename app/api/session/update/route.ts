@@ -1,39 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server';
 import clientPromise from '@/lib/mongodb';
 import { SessionLog } from '@/lib/types/sessionLog';
+import { z } from 'zod';
+
+const updateSchema = z.object({
+  sessionId: z.string().min(1),
+  tasksCompleted: z.number().int().min(0).optional(),
+  tasksSkipped: z.number().int().min(0).optional(),
+  taskCount: z.number().int().min(0).optional(),
+  sessionRating: z.number().min(1).max(5).optional(),
+  abandoned: z.boolean().optional()
+});
 
 export async function POST(request: NextRequest) {
   try {
+    const userId = request.headers.get('x-user-id');
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await request.json();
-    const { userId, sessionId, tasksCompleted, tasksSkipped, taskCount, sessionRating, abandoned } = body;
+    const result = updateSchema.safeParse(body);
 
-    if (!userId || !sessionId) {
+    if (!result.success) {
       return NextResponse.json(
-        { error: 'Missing required fields: userId, sessionId' },
+        { error: 'Invalid parameters', details: result.error.format() },
         { status: 400 }
       );
     }
 
-    // Type validation to prevent NoSQL query hijacking (e.g. passing { $ne: null } objects)
-    if (typeof userId !== 'string' || typeof sessionId !== 'string') {
-      return NextResponse.json(
-        { error: 'Invalid parameters: userId and sessionId must be strings' },
-        { status: 400 }
-      );
-    }
-
-    if (
-      (tasksCompleted !== undefined && typeof tasksCompleted !== 'number') ||
-      (tasksSkipped !== undefined && typeof tasksSkipped !== 'number') ||
-      (taskCount !== undefined && typeof taskCount !== 'number') ||
-      (sessionRating !== undefined && typeof sessionRating !== 'number') ||
-      (abandoned !== undefined && typeof abandoned !== 'boolean')
-    ) {
-      return NextResponse.json(
-        { error: 'Invalid parameter types' },
-        { status: 400 }
-      );
-    }
+    const { sessionId, tasksCompleted, tasksSkipped, taskCount = 0, sessionRating, abandoned } = result.data;
 
     const client = await clientPromise;
     const db = client.db('motivateai');
@@ -56,7 +52,7 @@ export async function POST(request: NextRequest) {
 
         const updateData: any = {
           completedAt: new Date(),
-          tasksCompleted: tasksCompleted,
+          tasksCompleted: tasksCompleted !== undefined ? tasksCompleted : session.tasksCompleted,
           completionRatio: completionRatio,
           tasks: updatedTasks as any,
           updatedAt: new Date()
