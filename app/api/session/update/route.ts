@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import clientPromise from '@/lib/mongodb';
 import { SessionLog } from '@/lib/types/sessionLog';
+import { ObjectId } from 'mongodb';
 import { z } from 'zod';
 
 const updateSchema = z.object({
@@ -83,17 +84,21 @@ export async function POST(request: NextRequest) {
           completedAt: { $exists: true } 
         });
 
-        // Trigger optimization engine every 5 sessions
-        if (completedSessionsCount > 0 && completedSessionsCount % 5 === 0) {
+        const userDoc = await db.collection('users').findOne({ _id: new ObjectId(userId) });
+        const optimizationsCount = userDoc?.optimizations?.length || 0;
+
+        // Trigger optimization engine if we've reached the next multiple of 5 successfully
+        // This ensures if session 5 fails, session 6 will retry it, because optimizationsCount will still be 0!
+        if (completedSessionsCount > 0 && completedSessionsCount >= (optimizationsCount + 1) * 5) {
           try {
-            // We do a non-blocking background fetch to the optimization route
+            // Await the fetch so Next.js doesn't kill the background process prematurely
             const baseUrl = request.headers.get('origin') || `http://${request.headers.get('host')}`;
             const authToken = request.cookies.get('auth_token')?.value;
             
-            fetch(`${baseUrl}/api/user/${userId}/optimize`, {
+            await fetch(`${baseUrl}/api/user/${userId}/optimize`, {
               method: 'POST',
               headers: authToken ? { 'Cookie': `auth_token=${authToken}` } : undefined
-            }).catch(e => console.warn('Background optimization failed:', e));
+            });
           } catch (e) {
             console.warn('Failed to trigger background optimization:', e);
           }

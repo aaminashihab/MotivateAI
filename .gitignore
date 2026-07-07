@@ -49,3 +49,7 @@ walkthrough.md
 AGENTS.md
 CLAUDE.md
 
+# ML Service
+motivateai-ml-service/**/.venv/
+motivateai-ml-service/**/__pycache__/
+motivateai-ml-service/**/*.joblib
