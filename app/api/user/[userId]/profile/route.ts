@@ -101,7 +101,7 @@ export async function GET(
       ];
     }
     
-    const profile = analyzeUserBehavior(sessions);
+    const profile = await analyzeUserBehavior(sessions);
     
     // --- Day 2 Real Profile Analytics ---
 

@@ -62,7 +62,7 @@ export async function generateAdaptiveSession(
   const sanitizedGoal = sanitizeGoalInput(goal);
 
   // Step 1: Analyze user behavior
-  const userProfile = analyzeUserBehavior(userSessions);
+  const userProfile = await analyzeUserBehavior(userSessions);
 
   // Step 2: Build personalization hints
   const adaptationPrompt = buildAdaptationPrompt(userProfile);

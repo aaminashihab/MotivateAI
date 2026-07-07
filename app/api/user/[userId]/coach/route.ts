@@ -55,7 +55,7 @@ export async function GET(
 
     if (process.env.GEMINI_API_KEY || process.env.GOOGLE_GEMINI_API_KEY) {
       try {
-        const profile = analyzeUserBehavior(sessions);
+        const profile = await analyzeUserBehavior(sessions);
         const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
         let prompt = `You are an empathetic, motivating AI learning coach. 

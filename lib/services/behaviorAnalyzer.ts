@@ -1,10 +1,11 @@
 import { SessionLog, UserProfile, BehaviorSignals } from '@/lib/types/sessionLog';
+import { getCompletionProbability, getDropoutRisk } from './mlClient';
 
 /**
  * Analyzes the last 10 sessions to detect user behavior patterns
  * Returns signals that will be passed to Gemini for personalization
  */
-export function analyzeUserBehavior(sessions: SessionLog[]): UserProfile {
+export async function analyzeUserBehavior(sessions: SessionLog[]): Promise<UserProfile> {
   const recentSessions = sessions.slice(-10);
 
   if (recentSessions.length === 0) {
@@ -67,7 +68,7 @@ export function analyzeUserBehavior(sessions: SessionLog[]): UserProfile {
     | undefined;
 
   // === CALCULATE SIGNALS ===
-  const signals = calculateSignals(
+  const signals = await calculateSignals(
     avgTaskDuration,
     stdDevTaskDuration,
     completionRate,
@@ -115,20 +116,51 @@ export function analyzeUserBehavior(sessions: SessionLog[]): UserProfile {
 /**
  * Calculate behavioral signals from metrics
  */
-function calculateSignals(
+async function calculateSignals(
   avgTaskDuration: number,
   stdDev: number,
   completionRate: number,
   breakSkipRate: number,
   dropoutAfter: number | undefined,
   sessions: SessionLog[]
-): BehaviorSignals {
+): Promise<BehaviorSignals> {
+  const lastSession = sessions[sessions.length - 1];
+  const defaultTaskCount = lastSession?.taskCount || 3;
+  const defaultHour = new Date().getHours();
+
+  const [mlProb, mlDropoutRisk] = await Promise.all([
+    getCompletionProbability({
+      estimatedDuration: avgTaskDuration,
+      taskPosition: 1,
+      sessionTaskCount: defaultTaskCount,
+      hourOfDay: defaultHour,
+      breakSkipRateSoFar: breakSkipRate,
+    }),
+    getDropoutRisk({
+      taskCount: defaultTaskCount,
+      avgEstimatedDuration: avgTaskDuration,
+      breakSkipRate: breakSkipRate,
+      completedRatio: completionRate / 100,
+      estimatedSessionTime: defaultTaskCount * avgTaskDuration,
+    })
+  ]);
+
+  const prefersShortTasks = mlProb !== null 
+    ? mlProb < 0.5 && avgTaskDuration < 25 
+    : avgTaskDuration < 18;
+
+  const finalCompletionConfidence = mlProb !== null
+    ? mlProb * 100
+    : completionRate;
+
   return {
-    prefersShortTasks: avgTaskDuration < 18, // < 18 min is "short"
+    prefersShortTasks,
     skipsBreaks: breakSkipRate > 40,
-    highVariance: stdDev > 10, // unpredictable time usage
-    dropoutAfterMinutes: dropoutAfter,
-    completionConfidence: completionRate, // 0-100
+    highVariance: stdDev > 10,
+    dropoutAfterMinutes: (mlDropoutRisk !== null && mlDropoutRisk > 0.6) 
+      ? Math.floor(avgTaskDuration * 1.5) 
+      : dropoutAfter,
+    completionConfidence: finalCompletionConfidence,
     bestTimeOfDay: determineBestTimeOfDay(sessions),
     consistencyScore: calculateConsistencyScore(sessions),
     engagementLevel: determineEngagementLevel(completionRate, breakSkipRate),

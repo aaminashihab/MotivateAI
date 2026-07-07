@@ -20,6 +20,49 @@ Self-directed learning is incredibly difficult. Most learners abandon their goal
 - 🔒 **Secure Authentication & Identity:** Built with custom JWT-based authentication and Next.js Edge Proxy for strict access control and IDOR prevention.
 - 🎨 **Modern, Responsive UI:** A sleek, glassmorphic dark-mode interface built with Tailwind CSS.
 
+## 🏛️ System Architecture
+
+```mermaid
+graph TD
+    subgraph Frontend ["Frontend (Client Browser)"]
+        UI[React / Tailwind CSS UI]
+    end
+
+    subgraph Vercel ["Vercel Serverless Platform"]
+        subgraph Edge ["Edge Network"]
+            Proxy{Next.js Edge Proxy}
+            JWT[JWT Verification via 'jose']
+            Proxy <--> JWT
+        end
+        
+        subgraph NodeRuntime ["Node.js Serverless Functions"]
+            AppRouter[Next.js 16 App Router]
+            AuthAPI[Auth Routes & bcryptjs]
+            AgentAPI[Adaptive Session Generator]
+            BehaviorAPI[Behavioral Analytics Engine]
+            YouTubeRoute[YouTube Integration Route]
+        end
+        
+        Proxy -->|Valid Requests| AppRouter
+        AppRouter --> AuthAPI
+        AppRouter --> AgentAPI
+        AppRouter --> BehaviorAPI
+        AppRouter --> YouTubeRoute
+    end
+    
+    subgraph External ["External APIs & Databases"]
+        MongoDB[(MongoDB Atlas)]
+        Gemini[Google Gemini 2.5 Flash]
+        YouTube[YouTube Data API v3]
+    end
+
+    UI -->|HTTPS| Proxy
+    AuthAPI <-->|Read/Write| MongoDB
+    AgentAPI <-->|Prompt/Response| Gemini
+    BehaviorAPI <-->|Track Progress| MongoDB
+    YouTubeRoute <-->|Search Videos| YouTube
+```
+
 ## 🛠️ Technology Stack
 
 - **Frontend & Backend Framework:** Next.js 16 (App Router)
@@ -80,6 +123,12 @@ As a portfolio project designed to demonstrate core product velocity alongside e
 - **In-Memory Rate Limiting:** The AI and YouTube API routes currently utilize an in-memory `Map` for rate limiting. In a Vercel serverless environment, this state does not persist across cold starts. A production deployment would swap this for a centralized Redis store (e.g., Upstash).
 - **Prompt Injection:** Agent endpoints employ regex-based filtering to strip basic prompt injection attacks (e.g., "ignore previous instructions"). Enterprise-grade deployment would require output-side validation and strictly scoped, read-only database roles.
 - **Password Reset Flow:** For demonstration purposes, reset links are printed to the console rather than dispatched via an email provider (like Resend).
+
+---
+
+## 📜 License
+
+This project is licensed under the [MIT License](LICENSE).
 
 ---
 
