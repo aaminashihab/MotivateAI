@@ -82,10 +82,20 @@ export default function ProfilePage() {
   }, []);
 
   return (
-    <div className="container">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-        <h1>Your Learning Profile</h1>
-        <Link href="/" style={{ padding: '0.5rem 1rem', background: 'rgba(255,255,255,0.1)', borderRadius: '8px', textDecoration: 'none', color: '#fff' }}>
+    <div className="container mx-auto px-4 py-8 max-w-[1536px]">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 bg-slate-900/50 p-6 rounded-3xl border border-slate-800/50">
+        <div>
+          <h1 className="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-500 tracking-tight mb-2">
+            Your Learning Profile
+          </h1>
+          <p className="text-slate-400 font-medium">
+            AI-Driven Behavioral Insights & Optimizations
+          </p>
+        </div>
+        <Link 
+          href="/" 
+          className="mt-4 md:mt-0 px-6 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-medium transition-colors border border-slate-700"
+        >
           Back to Dashboard
         </Link>
       </div>
@@ -266,10 +276,16 @@ export default function ProfilePage() {
           </div>
         </div>
       ) : (
-        <div className="glass-panel" style={{ textAlign: 'center' }}>
-          <h2>No Data Yet</h2>
-          <p style={{ color: 'var(--text-secondary)' }}>Complete a few sessions to unlock your personalized learning insights!</p>
-          <Link href="/" style={{ display: 'inline-block', marginTop: '1rem', padding: '0.5rem 1rem', background: 'var(--accent)', borderRadius: '8px', textDecoration: 'none', color: '#fff' }}>
+        <div className="flex flex-col items-center justify-center p-12 text-center bg-slate-900/50 border border-slate-800/50 rounded-3xl mt-8">
+          <div className="text-6xl mb-6">📊</div>
+          <h2 className="text-2xl md:text-3xl font-black text-white mb-4">No Data Yet</h2>
+          <p className="text-slate-400 max-w-md mb-8">
+            Complete <strong className="text-orange-400">5 sessions</strong> to unlock your personalized learning insights and allow the AI to adapt to your behavior!
+          </p>
+          <Link 
+            href="/" 
+            className="px-8 py-4 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-400 hover:to-red-400 text-white font-bold rounded-xl shadow-lg shadow-orange-500/30 transition-all active:scale-[0.98]"
+          >
             Start a Session
           </Link>
         </div>
