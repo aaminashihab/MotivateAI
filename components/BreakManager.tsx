@@ -26,6 +26,7 @@ export default function BreakManager({
   const [activityIndex, setActivityIndex] = useState(0);
   const [breakDuration, setBreakDuration] = useState(5); // Default 5 minutes
   const hasInitialized = useRef(false);
+  const prevTaskIndexRef = useRef(taskIndex);
 
   const ACTIVITIES = [
     "💧 Time to hydrate! Grab a glass of water.",
@@ -71,7 +72,18 @@ export default function BreakManager({
           .catch(err => console.error("Failed to load preferences in BreakManager", err));
       }
     }
-  }, [initialMinutes, taskIndex, ACTIVITIES.length]);
+  }, []); // Run only on mount
+
+  // Watch for taskIndex changes to reset the timer properly
+  useEffect(() => {
+    if (taskIndex !== prevTaskIndexRef.current) {
+      setIsBreakMode(false);
+      setIsActive(false);
+      setTimeLeft(initialMinutes * 60);
+      setActivityIndex(Math.floor(Math.random() * ACTIVITIES.length));
+      prevTaskIndexRef.current = taskIndex;
+    }
+  }, [taskIndex, initialMinutes, ACTIVITIES.length]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
