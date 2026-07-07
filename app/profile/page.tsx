@@ -30,13 +30,9 @@ export default function ProfilePage() {
 
   const fetchProfile = async () => {
     try {
-      let userId = localStorage.getItem('motivateai_user_id');
-      if (!userId) {
-        userId = `user_${Math.random().toString(36).substring(2, 15)}`;
-        localStorage.setItem('motivateai_user_id', userId);
-      }
+      let userId = localStorage.getItem('motivateai_user_id') || 'me';
 
-      const res = await fetch(`/api/user/${userId}/profile`);
+      const res = await fetch(`/api/user/me/profile`);
       if (res.ok) {
         const data = await res.json();
         
